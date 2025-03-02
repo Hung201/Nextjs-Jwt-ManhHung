@@ -6,4 +6,4 @@ const ManageProductPage = () => {
     )
 }
 
-export default ManageProductPage
+export default ManageProductPage;

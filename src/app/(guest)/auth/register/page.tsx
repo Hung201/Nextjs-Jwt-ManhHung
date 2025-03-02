@@ -1,4 +1,4 @@
-import Register from "@/components/auth/register"
+import Register from "@/components/auth/register";
 
 const RegisterPage = () => {
     return (
@@ -6,4 +6,4 @@ const RegisterPage = () => {
     )
 }
 
-export default RegisterPage
+export default RegisterPage;
