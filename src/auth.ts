@@ -11,27 +11,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // You can specify which fields should be submitted, by adding keys to the `credentials` object.
             // e.g. domain, username, password, 2FA token, etc.
             credentials: {
-                email: {},
+                username: {},
                 password: {},
             },
             authorize: async (credentials) => {
-                let user = null;
+
                 const res = await sendRequest<IBackendRes<ILogin>>({
                     method: "POST",
                     url: "http://localhost:8080/api/v1/auth/login",
                     body: {
-                        username: credentials.email,
+                        username: credentials.username,
                         password: credentials.password
                     }
                 })
-                if (!res.statusCode) {
+
+                if (res.statusCode === 201) {
                     // return user object with their profile data
+
                     return {
                         _id: res.data?.user?._id,
                         name: res.data?.user?.name,
                         email: res.data?.user?.email,
-                        access_token: res.data?.access_token
-                    }
+                        access_token: res.data?.access_token,
+                    };
                 } else if (+res.statusCode === 401) {
                     throw new InvalidEmailPasswordError()
                 } else if (+res.statusCode === 400) {
@@ -41,7 +43,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
 
 
+
+
             },
+
         }),
     ],
     pages: {
@@ -55,8 +60,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return token
         },
         session({ session, token }) {
-            (session.user as IUser) = token.user
+            (session.user as IUser) = token.user;
             return session
         },
+        authorized: async ({ auth }) => {
+            // Logged in users are authenticated, otherwise redirect to login page
+            return !!auth
+        },
+
     },
 })
