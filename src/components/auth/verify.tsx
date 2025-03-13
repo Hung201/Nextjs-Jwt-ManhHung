@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import React from 'react';
 import { Button, Col, Divider, Form, Input, message, notification, Row } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -7,10 +7,12 @@ import { sendRequest } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 
 const Verify = (props: any) => {
-    const { id, code } = props;
+    const { id } = props;
+
     const router = useRouter()
+
     const onFinish = async (values: any) => {
-        const { _id, code } = values
+        const { _id, code } = values;
         const res = await sendRequest<IBackendRes<any>>({
             url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/check-code`,
             method: "POST",
@@ -19,11 +21,11 @@ const Verify = (props: any) => {
             }
         })
         if (res?.data) {
-            message.success("Account activation successful!")
-            router.push(`/auth/login`)
+            message.success("Kích hoạt tài khoản thành công.")
+            router.push(`/auth/login`);
         } else {
             notification.error({
-                message: "Verify error.",
+                message: "Verify error",
                 description: res?.message
             })
         }
@@ -38,7 +40,7 @@ const Verify = (props: any) => {
                     border: "1px solid #ccc",
                     borderRadius: "5px"
                 }}>
-                    <legend>Activate your account</legend>
+                    <legend>Kích hoạt tài khoản</legend>
                     <Form
                         name="basic"
                         onFinish={onFinish}
@@ -54,7 +56,7 @@ const Verify = (props: any) => {
                             <Input disabled />
                         </Form.Item>
                         <div>
-                            The code has been sent to your registered email, please check your email.
+                            Mã code đã được gửi tới email đăng ký, vui lòng kiểm tra email.
                         </div>
                         <Divider />
 
@@ -70,6 +72,7 @@ const Verify = (props: any) => {
                         >
                             <Input />
                         </Form.Item>
+
 
 
                         <Form.Item
@@ -92,5 +95,4 @@ const Verify = (props: any) => {
     )
 }
 
-
-export default Verify
+export default Verify;

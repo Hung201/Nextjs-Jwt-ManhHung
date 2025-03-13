@@ -5,28 +5,23 @@ import { Button, Form, Input, Modal, notification, Steps } from "antd";
 import { SmileOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import { sendRequest } from "@/utils/api";
+import Email from "next-auth/providers/email";
 
-const ModalReactive = (props: any) => {
-    const { isModalOpen, setIsModalOpen, userEmail } = props;
+const ModalChangePassword = (props: any) => {
+    const { isModalOpen, setIsModalOpen } = props;
     const [current, setCurrent] = useState(0);
     const [form] = Form.useForm();
-    const [userId, setUserId] = useState("");
+    const [userEmail, setUserEmail] = useState("");
 
     const hasMounted = useHasMounted();
 
-
-    useEffect(() => {
-        if (userEmail) {
-            form.setFieldValue("email", userEmail)
-        }
-    }, [userEmail]);
 
     if (!hasMounted) return <></>;
 
     const onFinishStep0 = async (values: any) => {
         const { email } = values;
         const res = await sendRequest<IBackendRes<any>>({
-            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-active`,
+            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-password`,
             method: "POST",
             body: {
                 email
@@ -34,7 +29,7 @@ const ModalReactive = (props: any) => {
         })
 
         if (res?.data) {
-            setUserId(res?.data?._id)
+            setUserEmail(res?.data?.email)
             setCurrent(1);
         } else {
             notification.error({
@@ -46,12 +41,19 @@ const ModalReactive = (props: any) => {
     }
 
     const onFinishStep1 = async (values: any) => {
-        const { code } = values;
+        const { code, password, confirmPassword } = values;
+        if (password !== confirmPassword) {
+            notification.error({
+                message: "Invalid input",
+                description: 'Password and confirm password are incorrect'
+            })
+            return;
+        }
         const res = await sendRequest<IBackendRes<any>>({
-            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/check-code`,
+            url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/change-password`,
             method: "POST",
             body: {
-                code, _id: userId
+                code, password, confirmPassword, email: userEmail
             }
         })
 
@@ -65,23 +67,27 @@ const ModalReactive = (props: any) => {
         }
 
     }
+    const resetModal = () => {
+        setIsModalOpen(false);
+        setCurrent(0);
+        setUserEmail('');
+        form.resetFields()
+    }
     return (
         <>
             <Modal
-                title="Kích hoạt tài khoản"
+                title="Quên mật khẩu"
                 open={isModalOpen}
-                onOk={() => setIsModalOpen(false)}
-                onCancel={() => setIsModalOpen(false)}
+                onOk={resetModal}
+                onCancel={resetModal}
                 maskClosable={false}
                 footer={null}
-
-
             >
                 <Steps
                     current={current}
                     items={[
                         {
-                            title: 'Login',
+                            title: 'Email',
                             // status: 'finish',
                             icon: <UserOutlined />,
                         },
@@ -102,10 +108,10 @@ const ModalReactive = (props: any) => {
                     <>
 
                         <div style={{ margin: "20px 0" }}>
-                            <p>Tải khoản của bạn chưa được kích hoạt</p>
+                            <p>To change your password, please enter your account email.</p>
                         </div>
                         <Form
-                            name="verify"
+                            name="change-password"
                             onFinish={onFinishStep0}
                             autoComplete="off"
                             layout='vertical'
@@ -115,12 +121,12 @@ const ModalReactive = (props: any) => {
                                 label=""
                                 name="email"
                             >
-                                <Input disabled value={userEmail} />
+                                <Input />
                             </Form.Item>
                             <Form.Item
                             >
                                 <Button type="primary" htmlType="submit">
-                                    Resend
+                                    Submit
                                 </Button>
                             </Form.Item>
                         </Form>
@@ -130,11 +136,11 @@ const ModalReactive = (props: any) => {
                 {current === 1 &&
                     <>
                         <div style={{ margin: "20px 0" }}>
-                            <p>Vui lòng nhập mã xác nhận</p>
+                            <p>Please change your password.</p>
                         </div>
 
                         <Form
-                            name="verify2"
+                            name="change-pass-2"
                             onFinish={onFinishStep1}
                             autoComplete="off"
                             layout='vertical'
@@ -152,10 +158,37 @@ const ModalReactive = (props: any) => {
                             >
                                 <Input />
                             </Form.Item>
+
+                            <Form.Item
+                                label="Mật khẩu mới"
+                                name="password"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your new password!',
+                                    },
+                                ]}
+                            >
+                                <Input.Password />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Xác nhận mật khẩu"
+                                name="confirmPassword"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your new password!',
+                                    },
+                                ]}
+                            >
+                                <Input.Password />
+                            </Form.Item>
+
                             <Form.Item
                             >
                                 <Button type="primary" htmlType="submit">
-                                    Active
+                                    Confirm
                                 </Button>
                             </Form.Item>
                         </Form>
@@ -164,7 +197,7 @@ const ModalReactive = (props: any) => {
 
                 {current === 2 &&
                     <div style={{ margin: "20px 0" }}>
-                        <p>Tải khoản của bạn đã được kích hoạt thành công. Vui lòng đăng nhập lại</p>
+                        <p>Your account password has been changed successfully. Please log in again.</p>
                     </div>
                 }
             </Modal>
@@ -172,4 +205,4 @@ const ModalReactive = (props: any) => {
     )
 }
 
-export default ModalReactive;
+export default ModalChangePassword;
