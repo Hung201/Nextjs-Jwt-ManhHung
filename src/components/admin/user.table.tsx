@@ -1,39 +1,90 @@
 'use client'
-import { Button, Table } from "antd"
+import { handleDeleteUserAction } from "@/utils/actions";
+import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import { Button, Popconfirm, Table } from "antd"
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useState } from "react";
+import UserCreate from "./user.create";
+import UserUpdate from "./user.update";
 
-const UserTable = () => {
-    const dataSource = [
-        {
-            key: '1',
-            name: 'Mike',
-            age: 32,
-            address: '10 Downing Street',
-        },
-        {
-            key: '2',
-            name: 'John',
-            age: 42,
-            address: '10 Downing Street',
-        },
-    ];
+
+interface IProps {
+    users: any;
+    meta: {
+        current: number;
+        pageSize: number;
+        pages: number;
+        total: number;
+    }
+}
+const UserTable = (props: IProps) => {
+    const { users, meta } = props;
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const { replace } = useRouter();
+
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
+    const [dataUpdate, setDataUpdate] = useState<any>(null);
 
     const columns = [
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            title: "STT",
+            render: (_: any, record: any, index: any) => {
+                return (
+                    <>{(index + 1) + (meta.current - 1) * (meta.pageSize)}</>
+                )
+            }
         },
         {
-            title: 'Age',
-            dataIndex: 'age',
-            key: 'age',
+            title: '_id',
+            dataIndex: '_id',
         },
         {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
+            title: 'Email',
+            dataIndex: 'email',
         },
+        {
+            title: 'Actions',
+
+            render: (text: any, record: any, index: any) => {
+                return (
+                    <>
+                        <EditTwoTone
+                            twoToneColor="#f57800" style={{ cursor: "pointer", margin: "0 20px" }}
+                            onClick={() => {
+                                setIsUpdateModalOpen(true);
+                                setDataUpdate(record);
+                            }}
+                        />
+
+                        <Popconfirm
+                            placement="leftTop"
+                            title={"Xác nhận xóa user"}
+                            description={"Bạn có chắc chắn muốn xóa user này ?"}
+                            onConfirm={async () => await handleDeleteUserAction(record?._id)}
+                            okText="Xác nhận"
+                            cancelText="Hủy"
+                        >
+                            <span style={{ cursor: "pointer" }}>
+                                <DeleteTwoTone twoToneColor="#ff4d4f" />
+                            </span>
+                        </Popconfirm>
+                    </>
+                )
+            }
+        }
+
     ];
+
+    const onChange = (pagination: any, filters: any, sorter: any, extra: any) => {
+        if (pagination && pagination.current) {
+            const params = new URLSearchParams(searchParams);
+            params.set('current', pagination.current);
+            replace(`${pathname}?${params.toString()}`);
+        }
+    };
+
 
     return (
         <>
@@ -43,12 +94,35 @@ const UserTable = () => {
                 marginBottom: 20
             }}>
                 <span>Manager Users</span>
-                <Button>Create User</Button>
+                <Button onClick={() => setIsCreateModalOpen(true)}>Create User</Button>
             </div>
             <Table
                 bordered
-                dataSource={dataSource}
+                dataSource={users}
                 columns={columns}
+                rowKey={"_id"}
+                pagination={
+                    {
+                        current: meta.current,
+                        pageSize: meta.pageSize,
+                        showSizeChanger: true,
+                        total: meta.total,
+                        showTotal: (total, range) => { return (<div> {range[0]}-{range[1]} trên {total} rows</div>) }
+                    }
+                }
+                onChange={onChange}
+            />
+
+            <UserCreate
+                isCreateModalOpen={isCreateModalOpen}
+                setIsCreateModalOpen={setIsCreateModalOpen}
+            />
+
+            <UserUpdate
+                isUpdateModalOpen={isUpdateModalOpen}
+                setIsUpdateModalOpen={setIsUpdateModalOpen}
+                dataUpdate={dataUpdate}
+                setDataUpdate={setDataUpdate}
             />
         </>
     )
