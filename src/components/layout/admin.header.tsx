@@ -24,7 +24,6 @@ const AdminHeader = (props: any) => {
                 </span>
             ),
         },
-
         {
             key: '2',
             danger: true,
@@ -62,7 +61,7 @@ const AdminHeader = (props: any) => {
                         style={{ color: "unset", lineHeight: "0 !important", marginRight: 20 }}
                     >
                         <Space>
-                            Welcome {session?.user?.email ?? ''}
+                            Welcome, {session?.user?.name ?? ''}
                             <DownOutlined />
                         </Space>
                     </a>

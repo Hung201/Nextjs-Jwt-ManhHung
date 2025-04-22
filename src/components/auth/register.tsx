@@ -73,6 +73,12 @@ const Register = () => {
                         <Form.Item
                             label="Name"
                             name="name"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your name!',
+                                },
+                            ]}
                         >
                             <Input />
                         </Form.Item>
