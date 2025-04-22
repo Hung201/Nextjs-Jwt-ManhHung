@@ -8,12 +8,19 @@ import type { MenuProps } from 'antd';
 import { Dropdown, Space } from 'antd';
 import { useSession } from 'next-auth/react';
 import { signOut } from "next-auth/react"
+import { startProgress, doneProgress } from '@/utils/nprogress';
 
 const AdminHeader = (props: any) => {
     // const { data: session, status } = useSession()
     const { session } = props
     const { Header } = Layout;
     const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
+
+    const handleSignOut = async () => {
+        startProgress();
+        await signOut({ redirect: true, callbackUrl: '/auth/login' });
+        doneProgress();
+    };
 
     const items: MenuProps['items'] = [
         {
@@ -27,7 +34,7 @@ const AdminHeader = (props: any) => {
         {
             key: '2',
             danger: true,
-            label: <span onClick={() => signOut()}>Sign out</span>,
+            label: <span onClick={handleSignOut}>Sign out</span>,
         },
     ];
 

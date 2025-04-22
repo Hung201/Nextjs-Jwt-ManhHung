@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import ModalReactive from './modal.reactive';
 import { useState } from 'react';
 import ModalChangePassword from './modal.change.password';
+import { startProgress, doneProgress } from '@/utils/nprogress';
 
 const Login = () => {
     const router = useRouter();
@@ -18,25 +19,42 @@ const Login = () => {
     const onFinish = async (values: any) => {
         const { username, password } = values;
         setUserEmail("");
-        //trigger sign-in
-        const res = await authenticate(username, password);
 
-        if (res?.error) {
-            //error
-            if (res?.code === 2) {
-                setIsModalOpen(true);
-                setUserEmail(username);
-                return;
+        try {
+            startProgress();
+            //trigger sign-in
+            const res = await authenticate(username, password);
+
+            if (res?.error) {
+                doneProgress();
+                //error
+                if (res?.code === 2) {
+                    setIsModalOpen(true);
+                    setUserEmail(username);
+                    return;
+                }
+                notification.error({
+                    message: "Error login",
+                    description: res?.error
+                });
+            } else {
+                //redirect to /dashboard
+                doneProgress();
+                router.push('/dashboard');
             }
+        } catch (error) {
+            doneProgress();
             notification.error({
                 message: "Error login",
-                description: res?.error
-            })
-
-        } else {
-            //redirect to /dashboard
-            router.push('/dashboard');
+                description: "An unexpected error occurred"
+            });
         }
+    };
+
+    const handleRegisterClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        startProgress();
+        router.push('/auth/register');
     };
 
     return (
@@ -82,10 +100,7 @@ const Login = () => {
                                 <Input.Password />
                             </Form.Item>
 
-
-
-                            <Form.Item
-                            >
+                            <Form.Item>
                                 <div style={{
                                     display: "flex",
                                     justifyContent: "space-between",
@@ -101,7 +116,7 @@ const Login = () => {
                         <Link href={"/"}><ArrowLeftOutlined /> Quay lại trang chủ</Link>
                         <Divider />
                         <div style={{ textAlign: "center" }}>
-                            Chưa có tài khoản? <Link href={"/auth/register"}>Đăng ký tại đây</Link>
+                            Chưa có tài khoản? <Link href="/auth/register" onClick={handleRegisterClick}>Đăng ký tại đây</Link>
                         </div>
                     </fieldset>
                 </Col>

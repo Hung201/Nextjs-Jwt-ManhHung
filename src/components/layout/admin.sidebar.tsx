@@ -6,20 +6,27 @@ import {
     MailOutlined,
     SettingOutlined,
     TeamOutlined,
-
 } from '@ant-design/icons';
 import React, { useContext } from 'react';
 import { AdminContext } from "@/library/admin.context";
 import type { MenuProps } from 'antd';
 import Link from 'next/link'
+import { useRouter } from 'next/navigation';
+import { startProgress, doneProgress } from '@/utils/nprogress';
 
 type MenuItem = Required<MenuProps>['items'][number];
 const AdminSideBar = () => {
     const { Sider } = Layout;
     const { collapseMenu } = useContext(AdminContext)!;
+    const router = useRouter();
+
+    const handleNavigation = (href: string) => {
+        startProgress();
+        router.push(href);
+        doneProgress();
+    };
 
     const items: MenuItem[] = [
-
         {
             key: 'grp',
             label: 'Hỏi Dân IT',
@@ -27,12 +34,12 @@ const AdminSideBar = () => {
             children: [
                 {
                     key: "dashboard",
-                    label: <Link href={"/dashboard"}>Dashboard</Link>,
+                    label: <span onClick={() => handleNavigation("/dashboard")}>Dashboard</span>,
                     icon: <AppstoreOutlined />,
                 },
                 {
                     key: "users",
-                    label: <Link href={"/dashboard/user"}>Manage Users</Link>,
+                    label: <span onClick={() => handleNavigation("/dashboard/user")}>Manage Users</span>,
                     icon: <TeamOutlined />,
                 },
                 {
@@ -99,7 +106,6 @@ const AdminSideBar = () => {
         <Sider
             collapsed={collapseMenu}
         >
-
             <Menu
                 mode="inline"
                 defaultSelectedKeys={['dashboard']}
