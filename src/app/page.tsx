@@ -1,12 +1,13 @@
-import { auth } from "@/auth";
-import HomePage from "@/components/layout/homepage";
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default async function Home() {
-  const session = await auth()
-  console.log("check session: ", session)
-  return (
-    <div>
-      <HomePage />
-    </div>
-  );
-}
+export default function Home() {
+    const router = useRouter();
+
+    useEffect(() => {
+        router.replace('/home');
+    }, []);
+
+    return null;
+} 
