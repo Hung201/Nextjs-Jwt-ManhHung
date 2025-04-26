@@ -1,7 +1,7 @@
 'use client'
 import { handleDeleteRestaurantAction } from "@/utils/actions";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
-import { Button, Popconfirm, Table } from "antd"
+import { Button, Popconfirm, Table, message } from "antd"
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from "react";
 import RestaurantCreate from "./restaurant.create";
@@ -78,9 +78,16 @@ const RestaurantTable = (props: IProps) => {
                             placement="leftTop"
                             title={"Xác nhận xóa nhà hàng"}
                             description={"Bạn có chắc chắn muốn xóa nhà hàng này ?"}
-                            onConfirm={async () => await handleDeleteRestaurantAction(record?._id)}
-                            okText="Xác nhận"
-                            cancelText="Hủy"
+                            onConfirm={async () => {
+                                const res = await handleDeleteRestaurantAction(record?._id);
+                                if (res?.data) {
+                                    message.success("Restaurant deleted successfully!");
+                                } else {
+                                    message.error(res?.message || "Delete restaurant failed!");
+                                }
+                            }}
+                            okText="Confirm"
+                            cancelText="Cancel"
                         >
                             <DeleteTwoTone
                                 twoToneColor="#ff4d4f"
@@ -113,7 +120,7 @@ const RestaurantTable = (props: IProps) => {
             </div>
             <Table
                 bordered
-                dataSource={restaurants}
+                dataSource={restaurants.filter((item: any) => !item.isDeleted)}
                 columns={columns}
                 rowKey={"_id"}
                 pagination={
