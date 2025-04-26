@@ -1,15 +1,14 @@
 'use client'
-import { handleDeleteUserAction } from "@/utils/actions";
+import { handleDeleteRestaurantAction } from "@/utils/actions";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { Button, Popconfirm, Table } from "antd"
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from "react";
-import UserCreate from "./user.create";
-import UserUpdate from "./user.update";
-
+import RestaurantCreate from "./restaurant.create";
+import RestaurantUpdate from "./restaurant.update";
 
 interface IProps {
-    users: any;
+    restaurants: any;
     meta: {
         current: number;
         pageSize: number;
@@ -17,8 +16,9 @@ interface IProps {
         total: number;
     }
 }
-const UserTable = (props: IProps) => {
-    const { users, meta } = props;
+
+const RestaurantTable = (props: IProps) => {
+    const { restaurants, meta } = props;
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -41,8 +41,24 @@ const UserTable = (props: IProps) => {
             dataIndex: '_id',
         },
         {
+            title: 'Name',
+            dataIndex: 'name',
+        },
+        {
+            title: 'Address',
+            dataIndex: 'address',
+        },
+        {
+            title: 'Phone',
+            dataIndex: 'phone',
+        },
+        {
             title: 'Email',
             dataIndex: 'email',
+        },
+        {
+            title: 'Rating',
+            dataIndex: 'rating',
         },
         {
             title: 'Actions',
@@ -60,9 +76,9 @@ const UserTable = (props: IProps) => {
 
                         <Popconfirm
                             placement="leftTop"
-                            title={"Xác nhận xóa user"}
-                            description={"Bạn có chắc chắn muốn xóa user này ?"}
-                            onConfirm={async () => await handleDeleteUserAction(record?._id)}
+                            title={"Xác nhận xóa nhà hàng"}
+                            description={"Bạn có chắc chắn muốn xóa nhà hàng này ?"}
+                            onConfirm={async () => await handleDeleteRestaurantAction(record?._id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
                         >
@@ -85,7 +101,6 @@ const UserTable = (props: IProps) => {
         }
     };
 
-
     return (
         <>
             <div style={{
@@ -93,12 +108,12 @@ const UserTable = (props: IProps) => {
                 alignItems: "center",
                 marginBottom: 20
             }}>
-                <span>Manager Users</span>
-                <Button onClick={() => setIsCreateModalOpen(true)}>Create User</Button>
+                <span>Manager Restaurants</span>
+                <Button onClick={() => setIsCreateModalOpen(true)}>Create Restaurant</Button>
             </div>
             <Table
                 bordered
-                dataSource={users}
+                dataSource={restaurants}
                 columns={columns}
                 rowKey={"_id"}
                 pagination={
@@ -113,12 +128,12 @@ const UserTable = (props: IProps) => {
                 onChange={onChange}
             />
 
-            <UserCreate
+            <RestaurantCreate
                 isCreateModalOpen={isCreateModalOpen}
                 setIsCreateModalOpen={setIsCreateModalOpen}
             />
 
-            <UserUpdate
+            <RestaurantUpdate
                 isUpdateModalOpen={isUpdateModalOpen}
                 setIsUpdateModalOpen={setIsUpdateModalOpen}
                 dataUpdate={dataUpdate}
@@ -128,4 +143,4 @@ const UserTable = (props: IProps) => {
     )
 }
 
-export default UserTable;
+export default RestaurantTable;

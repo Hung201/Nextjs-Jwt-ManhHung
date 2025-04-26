@@ -17,6 +17,7 @@
     "@ant-design/nextjs-registry": "1.0.0",
     "@types/nprogress": "^0.2.3",
     "antd": "5.19.3",
+    "axios": "^1.9.0",
     "next": "14.2.5",
     "next-auth": "5.0.0-beta.20",
     "nprogress": "^0.2.0",

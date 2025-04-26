@@ -10,6 +10,7 @@ declare global {
         useCredentials?: boolean;
         headers?: any;
         nextOption?: any;
+        next?: { tags: string[] };
     }
 
     interface IBackendRes<T> {

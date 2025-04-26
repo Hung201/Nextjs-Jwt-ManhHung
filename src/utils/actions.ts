@@ -78,3 +78,70 @@ export const handleDeleteUserAction = async (id: any) => {
     revalidateTag("list-users")
     return res;
 }
+
+// Restaurant Actions
+export const getRestaurantsWithPagination = async (page: number, limit: number) => {
+    const session = await auth();
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/restaurants?current=${page}&pageSize=${limit}`,
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+        },
+        next: { tags: ['restaurants'] }
+    });
+    return res;
+}
+
+export const handleCreateRestaurantAction = async (data: any) => {
+    const session = await auth();
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/restaurants`,
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+        },
+        body: { ...data }
+    });
+    revalidateTag("restaurants")
+    return res;
+}
+
+export const handleUpdateRestaurantAction = async (data: any) => {
+    const session = await auth();
+
+    const formData = new URLSearchParams();
+
+    // Format data as array with single object
+    formData.append('0[_id]', data._id);
+    formData.append('0[name]', data.name);
+    formData.append('0[email]', data.email);
+    formData.append('0[phone]', data.phone);
+    formData.append('0[address]', data.address);
+    formData.append('0[rating]', data.rating?.toString() || '');
+
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/restaurants`,
+        method: "PATCH",
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData
+    });
+    revalidateTag("restaurants")
+    return res;
+}
+
+export const handleDeleteRestaurantAction = async (id: string) => {
+    const session = await auth();
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/restaurants/${id}`,
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+        }
+    });
+    revalidateTag("restaurants")
+    return res;
+}
