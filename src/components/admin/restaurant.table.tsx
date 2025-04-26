@@ -120,7 +120,7 @@ const RestaurantTable = (props: IProps) => {
             </div>
             <Table
                 bordered
-                dataSource={restaurants.filter((item: any) => !item.isDeleted)}
+                dataSource={restaurants}
                 columns={columns}
                 rowKey={"_id"}
                 pagination={
