@@ -45,6 +45,13 @@ const RestaurantTable = (props: IProps) => {
             dataIndex: 'name',
         },
         {
+            title: 'Image',
+            dataIndex: 'image',
+            render: (image: string) => (
+                image ? <img src={image} alt="restaurant" style={{ width: 50, height: 50, objectFit: "cover" }} /> : null
+            ),
+        },
+        {
             title: 'Address',
             dataIndex: 'address',
         },

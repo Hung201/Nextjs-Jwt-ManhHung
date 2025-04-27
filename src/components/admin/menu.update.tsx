@@ -160,7 +160,7 @@ const MenuUpdate = (props: IProps) => {
             // Include image data in the request
             const res = await handleUpdateMenuAction({
                 ...formData,
-                image: imageData || dataUpdate?.image,
+                image: fileList.length === 0 ? "" : (imageData || dataUpdate?.image),
                 _id: dataUpdate._id
             });
 
