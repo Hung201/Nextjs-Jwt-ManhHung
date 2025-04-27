@@ -48,6 +48,11 @@ const AdminSideBar = () => {
                     icon: <TeamOutlined />,
                 },
                 {
+                    key: "menus",
+                    label: <span onClick={() => handleNavigation("/dashboard/menus")}>Manage Menus</span>,
+                    icon: <TeamOutlined />,
+                },
+                {
                     key: 'sub1',
                     label: 'Navigation One',
                     icon: <MailOutlined />,
