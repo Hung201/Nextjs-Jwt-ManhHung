@@ -9,6 +9,7 @@ export interface Restaurant {
     createdAt: string;
     updatedAt: string;
     __v: number;
+    image: string;
 }
 
 export interface PaginationState {

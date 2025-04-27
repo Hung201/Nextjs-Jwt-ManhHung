@@ -1,15 +1,12 @@
 'use client';
 import React from 'react';
-import { Card, Typography, Button, Rate, Space } from 'antd';
+import { Rate } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-
-const { Title, Text } = Typography;
 
 interface HomeCardProps {
     id: string;
     name: string;
     description: string;
-    price: number;
     image: string;
     rating: number;
     onAddToCart: (id: string) => void;
@@ -19,61 +16,33 @@ const HomeCard: React.FC<HomeCardProps> = ({
     id,
     name,
     description,
-    price,
     image,
     rating,
     onAddToCart
 }) => {
     return (
-        <Card
-            hoverable
-            cover={
-                <div style={{
-                    height: '200px',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: '#f5f5f5'
-                }}>
-                    <img
-                        alt={name}
-                        src={image}
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover'
-                        }}
-                    />
+        <div className="group relative overflow-hidden rounded-lg bg-white shadow-lg transition-all duration-300 hover:shadow-xl">
+            {/* Image Container */}
+            <div className="relative h-48 w-full overflow-hidden">
+                <img
+                    src={image}
+                    alt={name}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+                <h3 className="mb-2 text-lg font-semibold text-gray-800 line-clamp-1">{name}</h3>
+                <p className="mb-3 text-sm text-gray-600 line-clamp-2">{description}</p>
+
+                <div className="flex items-center justify-between">
+                    <Rate disabled defaultValue={rating} allowHalf className="text-sm" />
                 </div>
-            }
-            style={{
-                borderRadius: '8px',
-                overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-            }}
-        >
-            <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                <Title level={4} style={{ margin: 0 }}>{name}</Title>
-                <Text type="secondary" style={{ fontSize: '14px' }}>{description}</Text>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text strong style={{ fontSize: '16px' }}>${price.toFixed(2)}</Text>
-                    <Rate disabled defaultValue={rating} allowHalf style={{ fontSize: '14px' }} />
-                </div>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => onAddToCart(id)}
-                    style={{
-                        width: '100%',
-                        background: '#000',
-                        borderColor: '#000'
-                    }}
-                >
-                    Add to Cart
-                </Button>
-            </Space>
-        </Card>
+            </div>
+        </div>
     );
 };
 
