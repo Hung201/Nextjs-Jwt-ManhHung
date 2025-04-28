@@ -28,7 +28,7 @@ const ManageMenuPage = async ({ searchParams }: { searchParams: { [key: string]:
     return (
         <div>
             <MenuTableWrapper
-                menus={menuRes?.data?.results ?? []}
+                menus={menuRes?.data?.result ?? []}
                 meta={menuRes?.data?.meta}
                 restaurants={restaurantRes?.data?.result ?? []}
             />
