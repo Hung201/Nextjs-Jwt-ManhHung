@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect } from "react";
 import { Modal, Form, Input, InputNumber, Select, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
@@ -130,6 +131,10 @@ const MenuItemsUpdate = ({ isUpdateModalOpen, setIsUpdateModalOpen, dataUpdate, 
 
     const onFinish = async (values: any) => {
         try {
+            if (!fileList.length) {
+                message.error('Please upload an image!');
+                return;
+            }
             let imageData = null;
             if (fileList[0]?.originFileObj) {
                 const file = fileList[0].originFileObj;
@@ -199,10 +204,18 @@ const MenuItemsUpdate = ({ isUpdateModalOpen, setIsUpdateModalOpen, dataUpdate, 
                     <Form.Item label="Description" name="description">
                         <Input />
                     </Form.Item>
-                    <Form.Item label="Base Price" name="base_price">
+                    <Form.Item
+                        label="Base Price"
+                        name="base_price"
+                        rules={[{ required: true, message: "Nhập giá!" }]}
+                    >
                         <InputNumber min={0} style={{ width: "100%" }} />
                     </Form.Item>
-                    <Form.Item label="Image">
+                    <Form.Item
+                        label="Image"
+                        name="image"
+                        rules={[{ required: true, message: "Vui lòng tải lên hình ảnh!" }]}
+                    >
                         <Upload
                             maxCount={1}
                             listType="picture-card"

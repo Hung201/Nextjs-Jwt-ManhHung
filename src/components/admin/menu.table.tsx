@@ -50,13 +50,6 @@ const MenuTable = (props: IProps) => {
             },
         },
         {
-            title: "Image",
-            dataIndex: "image",
-            render: (image: string) => (
-                image ? <img src={image} alt="menu" style={{ width: 50, height: 50, objectFit: "cover" }} /> : null
-            ),
-        },
-        {
             title: "Actions",
             render: (_: any, record: any) => (
                 <div style={{ display: "flex", alignItems: "center", gap: 20 }}>

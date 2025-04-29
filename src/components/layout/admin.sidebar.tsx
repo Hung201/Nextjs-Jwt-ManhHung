@@ -2,10 +2,12 @@
 import Layout from "antd/es/layout";
 import Menu from "antd/es/menu";
 import {
-    AppstoreOutlined,
-    MailOutlined,
-    SettingOutlined,
-    TeamOutlined,
+    DashboardOutlined,
+    UserOutlined,
+    ShopOutlined,
+    MenuOutlined,
+    CoffeeOutlined,
+    PlusCircleOutlined
 } from '@ant-design/icons';
 import React, { useContext } from 'react';
 import { AdminContext } from "@/library/admin.context";
@@ -35,33 +37,33 @@ const AdminSideBar = () => {
                 {
                     key: "dashboard",
                     label: <span onClick={() => handleNavigation("/dashboard")}>Dashboard</span>,
-                    icon: <AppstoreOutlined />,
+                    icon: <DashboardOutlined />,
                 },
                 {
                     key: "users",
                     label: <span onClick={() => handleNavigation("/dashboard/user")}>Manage Users</span>,
-                    icon: <TeamOutlined />,
+                    icon: <UserOutlined />,
                 },
                 {
                     key: "restaurants",
                     label: <span onClick={() => handleNavigation("/dashboard/restaurant")}>Manage Restaurants</span>,
-                    icon: <TeamOutlined />,
+                    icon: <ShopOutlined />,
                 },
                 {
                     key: "menus",
                     label: <span onClick={() => handleNavigation("/dashboard/menus")}>Manage Menus</span>,
-                    icon: <TeamOutlined />,
+                    icon: <MenuOutlined />,
                 }
                 ,
                 {
                     key: "menu.items",
                     label: <span onClick={() => handleNavigation("/dashboard/menu.items")}>Manage Menu Items</span>,
-                    icon: <TeamOutlined />,
+                    icon: <CoffeeOutlined />,
                 },
                 {
                     key: "menu.item.option",
                     label: <span onClick={() => handleNavigation("/dashboard/menu.item.option")}>Manage Menu Item Option</span>,
-                    icon: <TeamOutlined />,
+                    icon: <PlusCircleOutlined />,
                 }
             ],
         },
