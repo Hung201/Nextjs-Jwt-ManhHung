@@ -217,3 +217,45 @@ export const handleDeleteMenuItemAction = async (id: any) => {
     revalidateTag("list-menu-items");
     return res;
 };
+
+// Menu Item Option Actions
+export const handleCreateMenuItemOptionAction = async (data: any) => {
+    const session = await auth();
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/menu-item-options`,
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+        },
+        body: { ...data }
+    });
+    revalidateTag("list-menu-item-options");
+    return res;
+};
+
+export const handleUpdateMenuItemOptionAction = async (data: any) => {
+    const session = await auth();
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/menu-item-options`,
+        method: "PATCH",
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+        },
+        body: { ...data }
+    });
+    revalidateTag("list-menu-item-options");
+    return res;
+};
+
+export const handleDeleteMenuItemOptionAction = async (id: any) => {
+    const session = await auth();
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/menu-item-options/${id}`,
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+        },
+    });
+    revalidateTag("list-menu-item-options");
+    return res;
+};

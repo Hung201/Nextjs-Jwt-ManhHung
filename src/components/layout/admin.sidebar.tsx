@@ -57,6 +57,11 @@ const AdminSideBar = () => {
                     key: "menu.items",
                     label: <span onClick={() => handleNavigation("/dashboard/menu.items")}>Manage Menu Items</span>,
                     icon: <TeamOutlined />,
+                },
+                {
+                    key: "menu.item.option",
+                    label: <span onClick={() => handleNavigation("/dashboard/menu.item.option")}>Manage Menu Item Option</span>,
+                    icon: <TeamOutlined />,
                 }
             ],
         },
