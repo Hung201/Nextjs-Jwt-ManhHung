@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { Layout } from 'antd';
 import HomeHeader from './HomeHeader';
+import HomeFooter from './HomeFooter';
 import { configureNProgress } from '@/utils/nprogress';
 
 const { Content } = Layout;
@@ -26,6 +27,7 @@ const HomeLayout: React.FC<HomeLayoutProps> = ({ children }) => {
             }}>
                 {children}
             </Content>
+            <HomeFooter />
         </Layout>
     );
 };

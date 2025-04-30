@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Col, Typography, Button, Rate, Card, Divider, Image, List, Badge, message } from 'antd';
 import { HeartOutlined, ShareAltOutlined, EnvironmentOutlined, PhoneOutlined } from '@ant-design/icons';
 import HomeLayout from '@/components/home/HomeLayout';
@@ -10,15 +10,66 @@ const { Title, Text, Paragraph } = Typography;
 const ProductDetailClient = ({ data }: { data: any }) => {
     console.log('ProductDetailClient data:', data);
     if (!data) return <div>Không có dữ liệu sản phẩm!</div>;
-    const [selectedMenu, setSelectedMenu] = useState(0);
+    const [activeSection, setActiveSection] = useState('');
     const restaurant = data;
     const menus = restaurant.menus || [];
-    const menu = menus[selectedMenu];
-    const item = menu?.items?.[0];
 
-    const handleMenuClick = (idx: number) => setSelectedMenu(idx);
+    const handleMenuClick = (menuId: string) => {
+        const element = document.getElementById(menuId);
+        if (element) {
+            const offset = -80; // Offset để tránh header che mất nội dung
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset + offset;
 
-    if (!item) return <div>Không có sản phẩm!</div>;
+            // Custom smooth scroll animation
+            const startPosition = window.pageYOffset;
+            const distance = offsetPosition - startPosition;
+            const duration = 800; // Thời gian animation (ms)
+            let start: number | null = null;
+
+            const animation = (currentTime: number) => {
+                if (start === null) start = currentTime;
+                const timeElapsed = currentTime - start;
+                const progress = Math.min(timeElapsed / duration, 1);
+
+                // Easing function để tạo hiệu ứng mượt mà
+                const easeInOutCubic = (t: number) => {
+                    return t < 0.5
+                        ? 4 * t * t * t
+                        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                };
+
+                window.scrollTo(0, startPosition + distance * easeInOutCubic(progress));
+
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
+                }
+            };
+
+            requestAnimationFrame(animation);
+            setActiveSection(menuId);
+        }
+    };
+
+    // Theo dõi section đang hiển thị khi scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollPosition = window.scrollY + 100; // Thêm offset
+
+            menus.forEach((menu: any) => {
+                const element = document.getElementById(menu._id);
+                if (element) {
+                    const { top, bottom } = element.getBoundingClientRect();
+                    if (top <= 100 && bottom >= 100) {
+                        setActiveSection(menu._id);
+                    }
+                }
+            });
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [menus]);
 
     // Xử lý image base64 hoặc tên file
     const getImageSrc = (img: string) => {
@@ -28,11 +79,9 @@ const ProductDetailClient = ({ data }: { data: any }) => {
         return `http://localhost:8080/uploads/${img}`;
     };
 
-    console.log('item.image:', item);
-    console.log('getImageSrc(item.image):', getImageSrc(item.image));
-
     return (
         <HomeLayout>
+
             <div className="flex flex-col max-w-4xl mx-auto my-8 gap-8">
                 {/* Product Detail */}
                 <Card className="shadow-lg rounded-lg overflow-hidden">
@@ -69,50 +118,59 @@ const ProductDetailClient = ({ data }: { data: any }) => {
                     </Row>
                 </Card>
                 {/* Menu Section Below */}
-                <div className="w-full bg-gray-50 rounded-xl p-6 mt-8 shadow-sm">
-                    <div className="text-xl font-bold text-red-600 mb-6 text-center tracking-wide">THỰC ĐƠN</div>
-                    <div className="flex flex-col md:flex-row gap-6">
-                        {/* Left: Menu categories */}
-                        <div className="md:w-1/4 w-full mb-4 md:mb-0">
-                            <div className="bg-white rounded-2xl shadow p-4 flex flex-col gap-2">
-                                {menus.map((menu: any, idx: number) => (
-                                    <button
-                                        key={menu._id || idx}
-                                        className={`transition px-4 py-2 rounded-lg font-semibold text-base text-left focus:outline-none border-none ${selectedMenu === idx ? 'bg-red-500 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-600'}`}
-                                        onClick={() => handleMenuClick(idx)}
-                                    >
-                                        {menu.title}
-                                    </button>
-                                ))}
+                <Card className="shadow-lg rounded-lg overflow-hidden">
+                    <div className="w-full bg-white rounded-xl p-6">
+                        <div className="text-xl font-bold text-[#ee4d2d] mb-6 text-center tracking-wide">THỰC ĐƠN</div>
+                        <div className="flex flex-col md:flex-row gap-6">
+                            {/* Left: Menu categories - Fixed position on scroll */}
+                            <div className="md:w-1/4 w-full">
+                                <div className="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-2 md:sticky md:top-20">
+                                    {menus.map((menu: any) => (
+                                        <button
+                                            key={menu._id}
+                                            className={`menu-button transition px-4 py-2 rounded-lg font-semibold text-base text-left focus:outline-none border-none ${activeSection === menu._id ? 'bg-[#ee4d2d] text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-[#fff1ef] hover:text-[#ee4d2d]'}`}
+                                            onClick={() => handleMenuClick(menu._id)}
+                                        >
+                                            {menu.title}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            {/* Right: All menu sections */}
+                            <div className="md:w-3/4 w-full">
+                                <div className="bg-white p-4">
+                                    {menus.map((menu: any, index: number) => (
+                                        <React.Fragment key={menu._id}>
+                                            <div id={menu._id} className="menu-section scroll-mt-20">
+                                                <div className="font-bold text-lg mb-4 uppercase text-[#ee4d2d] tracking-wide">{menu.title}</div>
+                                                {menu.items?.length > 0 ? (
+                                                    <ul className="divide-y divide-gray-100">
+                                                        {menu.items.map((item: any) => (
+                                                            <li key={item._id} className="menu-item flex items-center gap-4 py-4 px-2 hover:bg-white rounded-lg transition-all">
+                                                                <img src={getImageSrc(item.image)} alt={item.name} className="w-14 h-14 object-cover rounded-lg border border-gray-200 shadow-sm" />
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="font-semibold text-base truncate">{item.title}</div>
+                                                                    {item.description && <div className="text-gray-400 text-xs truncate">{item.description}</div>}
+                                                                </div>
+                                                                <div className="text-[#ee4d2d] font-bold text-base min-w-[70px] text-right">{item.base_price?.toLocaleString()}<span className="text-xs align-super">đ</span></div>
+                                                                <button className="ml-2 bg-[#ee4d2d] hover:bg-[#d73211] shadow text-white rounded-full w-8 h-8 flex items-center justify-center text-xl transition-all hover:scale-105 border-none focus:outline-none"><span className="pb-0.5">+</span></button>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <div className="text-gray-400 italic">Không có món nào</div>
+                                                )}
+                                            </div>
+                                            {index < menus.length - 1 && (
+                                                <Divider className="!my-8 !border-gray-300" />
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                        {/* Center: Menu items */}
-                        <div className="md:w-2/4 w-full">
-                            <div className="bg-white rounded-2xl shadow p-4">
-                                <div className="font-bold text-lg mb-4 uppercase text-red-500 tracking-wide">{menu?.title}</div>
-                                {menu?.items?.length > 0 ? (
-                                    <ul className="divide-y divide-gray-100">
-                                        {menu.items.map((item: any) => (
-                                            <li key={item._id} className="flex items-center gap-4 py-4">
-                                                <img src={getImageSrc(item.image)} alt={item.name} className="w-14 h-14 object-cover rounded-lg border border-gray-200 shadow-sm" />
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="font-semibold text-base truncate">{item.name}</div>
-                                                    {item.description && <div className="text-gray-400 text-xs truncate">{item.description}</div>}
-                                                </div>
-                                                <div className="text-blue-500 font-bold text-base min-w-[70px] text-right">{item.base_price?.toLocaleString()}<span className="text-xs align-super">đ</span></div>
-                                                <button className="ml-2 bg-red-500 hover:bg-red-600 shadow text-white rounded-full w-8 h-8 flex items-center justify-center text-xl transition"><span className="pb-0.5">+</span></button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div className="text-gray-400 italic">Không có món nào</div>
-                                )}
-                            </div>
-                        </div>
-                        {/* Right: Placeholder for QR code or other content */}
-                        {/* <div className="md:w-1/4 w-full">QR code here</div> */}
                     </div>
-                </div>
+                </Card>
             </div>
         </HomeLayout>
     );

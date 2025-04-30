@@ -48,51 +48,18 @@ const HomeHeader: React.FC = () => {
         // Implement language change functionality here
     };
 
-    const iconStyle = { color: '#fff', fontSize: '24px' };
-    const cartIconStyle = { color: '#fff', fontSize: '28px' };
+    const iconStyle = { color: '#333333', fontSize: '24px' };
+    const cartIconStyle = { color: '#333333', fontSize: '28px' };
 
     return (
-        <Header className="flex items-center justify-between px-6 shadow-lg sticky top-0 z-50 h-16" style={{ background: '#2162a0' }}>
+        <Header className="flex items-center justify-between px-6 shadow-lg sticky top-0 z-50 h-16 bg-white [&.ant-layout-header]:!bg-white">
             <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
-                <div className="flex items-center space-x-8">
+                <div className="flex items-center">
                     <div
                         onClick={() => handleNavigation('/')}
                         className="flex items-center cursor-pointer hover:opacity-80 transition-all min-w-[140px]"
                     >
-                        <Title level={3} className="!m-0 !text-white font-bold tracking-wide">EMTSHOP</Title>
-                    </div>
-
-                    <div className="flex items-center">
-                        <Search
-                            placeholder="Search..."
-                            onSearch={handleSearch}
-                            className="w-[400px] [&_.ant-input-group-addon]:!bg-white [&_.ant-input-group-addon]:last:!border-0 [&_.ant-input-search-button]:!border-0"
-                            style={{
-                                borderRadius: '20px',
-                                overflow: 'hidden'
-                            }}
-                            size="large"
-                            allowClear
-                            enterButton={
-                                <Button
-                                    style={{
-                                        background: 'white',
-                                        border: 'none',
-                                        boxShadow: 'none',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        width: '40px',
-                                        height: '100%',
-                                        padding: 0,
-                                        margin: 0
-                                    }}
-                                >
-                                    <SearchOutlined style={{ fontSize: '20px', color: '#2162a0' }} />
-                                </Button>
-                            }
-                            rootClassName="[&_.ant-input-group]:[border:none] [&_.ant-input]:!border-0 [&_.ant-input-group-addon]:!p-0"
-                        />
+                        <Title level={3} className="!m-0 !text-[#ee4d2d] font-bold tracking-wide">EMTSHOP</Title>
                     </div>
                 </div>
 
@@ -105,31 +72,31 @@ const HomeHeader: React.FC = () => {
                             className: "bg-white border border-gray-200"
                         }}
                         placement="bottomRight"
-                        className="flex items-center hover:bg-blue-700 rounded-full transition-all"
+                        className="flex items-center hover:bg-[#d73211] rounded-full transition-all"
                     >
                         <Button
                             type="text"
-                            className="flex items-center justify-center text-white hover:text-white h-10 px-4"
+                            className="flex items-center justify-center text-[#333333] hover:text-white h-10 px-4"
                             icon={<GlobalOutlined style={iconStyle} />}
                         >
-                            <span className="ml-1 text-white">{currentLang.toUpperCase()}</span>
+                            <span className="ml-1">{currentLang.toUpperCase()}</span>
                         </Button>
                     </Dropdown>
                     <Button
                         onClick={() => handleNavigation('/profile')}
                         type="text"
-                        className="flex items-center justify-center text-white hover:text-white hover:bg-blue-700 transition-all h-10 w-10"
+                        className="flex items-center justify-center text-[#333333] hover:text-white hover:bg-[#d73211] transition-all h-10 w-10 rounded-full"
                         icon={<UserOutlined style={iconStyle} />}
                     />
                     <Button
                         onClick={() => handleNavigation('/cart')}
                         type="text"
-                        className="flex items-center justify-center text-white hover:text-white hover:bg-blue-700 transition-all h-10 w-10"
+                        className="flex items-center justify-center text-[#333333] hover:text-white hover:bg-[#d73211] transition-all h-10 w-10 rounded-full"
                     >
                         <Badge
                             count={0}
                             size="small"
-                            className="flex items-center [&_.ant-badge-count]:!bg-blue-500"
+                            className="flex items-center [&_.ant-badge-count]:!bg-[#ee4d2d] [&_.ant-badge-count]:!text-white"
                         >
                             <ShoppingCartOutlined style={cartIconStyle} />
                         </Badge>

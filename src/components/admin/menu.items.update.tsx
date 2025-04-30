@@ -214,7 +214,6 @@ const MenuItemsUpdate = ({ isUpdateModalOpen, setIsUpdateModalOpen, dataUpdate, 
                     <Form.Item
                         label="Image"
                         name="image"
-                        rules={[{ required: true, message: "Vui lòng tải lên hình ảnh!" }]}
                     >
                         <Upload
                             maxCount={1}
