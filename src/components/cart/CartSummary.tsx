@@ -22,6 +22,10 @@ const CartSummary: React.FC<CartSummaryProps> = ({
         router.back();
     };
 
+    const handleCheckout = () => {
+        router.push('/cart/checkout');
+    };
+
     return (
         <div className="flex justify-between items-center p-6 bg-gray-100 rounded-lg">
             <Text strong className="text-lg">
@@ -39,7 +43,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({
                 <Button
                     size="large"
                     icon={<ShoppingOutlined />}
-                    onClick={onCheckout}
+                    onClick={handleCheckout}
                     className="!bg-[#ee4d2d] !border-[#ee4d2d] !text-white hover:!bg-[#d73211] hover:!border-[#d73211] hover:!opacity-90"
                 >
                     Thanh toán

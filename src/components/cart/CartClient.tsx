@@ -29,8 +29,7 @@ const CartClient = () => {
     };
 
     const handleCheckout = () => {
-        // Implement checkout logic
-        console.log('Proceeding to checkout...');
+        router.push('/cart/checkout');
     };
 
     const handleContinueShopping = () => {

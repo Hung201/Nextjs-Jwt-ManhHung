@@ -1,13 +1,11 @@
 import React from 'react';
 import HomeLayout from '@/components/home/HomeLayout';
-import CartClient from '@/components/cart/CartClient';
+import CheckoutClient from '@/components/checkout/CheckoutClient';
 
-const CartPage = () => {
+export default function CheckoutPage() {
     return (
         <HomeLayout>
-            <CartClient />
+            <CheckoutClient />
         </HomeLayout>
     );
 }
-
-export default CartPage;
