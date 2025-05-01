@@ -30,7 +30,20 @@ const CartTable: React.FC<CartTableProps> = ({
                         alt={text}
                         className="w-[50px] h-[50px] object-cover rounded"
                     />
-                    <Text strong>{text}</Text>
+                    <div className="flex flex-col">
+                        <Text strong className="text-base">{record.name}</Text>
+                        {record.selectedOptions ? (
+                            <div className="text-xs text-gray-500 mt-1">
+                                {Object.entries(record.selectedOptions)
+                                    .filter(([_, value]) => value)
+                                    .map(([key, value]) => value)
+                                    .map(option => `+ ${option}`)
+                                    .join(', ')}
+                            </div>
+                        ) : (
+                            <div className="text-xs text-gray-500 mt-1">Mặc định</div>
+                        )}
+                    </div>
                 </div>
             ),
         },
@@ -71,13 +84,25 @@ const CartTable: React.FC<CartTableProps> = ({
         },
     ];
 
-    console.log("Cart Items in Table:", cartItems); // Debug log
+    // Chỉ lấy thông tin cần thiết và loại bỏ ID khỏi hiển thị
+    const dataWithKeys = cartItems.map((item, index) => {
+        const { id, name, price, quantity, image, selectedOptions } = item;
+        return {
+            id,
+            name,
+            price,
+            quantity,
+            image,
+            selectedOptions,
+            uniqueKey: `${id}-${index}`
+        };
+    });
 
     return (
         <Table
             columns={columns}
-            dataSource={cartItems}
-            rowKey="id"
+            dataSource={dataWithKeys}
+            rowKey="uniqueKey"
             pagination={false}
             className="mb-6"
         />

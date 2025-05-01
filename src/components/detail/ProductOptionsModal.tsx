@@ -28,10 +28,10 @@ const ProductOptionsModal: React.FC<ProductOptionsModalProps> = ({
         }
     }, [isOpen, selectedItem]);
 
-    const handleOptionChange = (optionId: string, checked: boolean) => {
+    const handleOptionChange = (optionId: string, checked: boolean, optionTitle: string) => {
         setSelectedOptions((prev) => ({
             ...prev,
-            [optionId]: checked ? optionId : null
+            [optionId]: checked ? optionTitle : null
         }));
     };
 
@@ -45,8 +45,8 @@ const ProductOptionsModal: React.FC<ProductOptionsModalProps> = ({
         let total = selectedItem?.base_price || 0;
 
         // Add selected options prices (3000đ per option)
-        Object.keys(selectedOptions).forEach((optionId) => {
-            if (selectedOptions[optionId]) {
+        Object.values(selectedOptions).forEach((option) => {
+            if (option) {
                 total += 3000; // Giá cố định cho mỗi option là 3000đ
             }
         });
@@ -62,6 +62,7 @@ const ProductOptionsModal: React.FC<ProductOptionsModalProps> = ({
 
     const handleSubmit = () => {
         console.log("Selected Item:", selectedItem); // Debug log
+        console.log("Selected Options:", selectedOptions); // Debug log
 
         const cartItem = {
             id: selectedItem._id,
@@ -134,8 +135,8 @@ const ProductOptionsModal: React.FC<ProductOptionsModalProps> = ({
                         <div key={option._id} className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Checkbox
-                                    checked={selectedOptions[option._id] === option._id}
-                                    onChange={(e) => handleOptionChange(option._id, e.target.checked)}
+                                    checked={selectedOptions[option._id] === option.title}
+                                    onChange={(e) => handleOptionChange(option._id, e.target.checked, option.title)}
                                 />
                                 <span className="uppercase">{option.title}</span>
                             </div>
