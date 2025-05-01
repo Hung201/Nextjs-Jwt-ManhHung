@@ -4,6 +4,7 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 
 import '@/app/globals.css';
 import NextAuthWrapper from "@/library/next.auth.wrapper";
+import { CartProvider } from '@/contexts/CartContext';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,12 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AntdRegistry>
-          <NextAuthWrapper>
-            {children}
-          </NextAuthWrapper>
-        </AntdRegistry>
-
+        <CartProvider>
+          <AntdRegistry>
+            <NextAuthWrapper>
+              {children}
+            </NextAuthWrapper>
+          </AntdRegistry>
+        </CartProvider>
       </body>
     </html>
   );

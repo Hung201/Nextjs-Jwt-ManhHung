@@ -7,20 +7,20 @@ const { Title, Text, Link } = Typography;
 
 const HomeFooter: React.FC = () => {
     return (
-        <Footer className="bg-gray-100 pt-16 pb-8">
+        <Footer className="!bg-white pt-16 pb-8">
             <div className="max-w-7xl mx-auto">
                 <Row gutter={[32, 32]}>
                     <Col xs={24} sm={12} md={8} lg={6}>
                         <Title level={3} className="!text-[#ee4d2d] !mb-6">EMTSHOP</Title>
                         <Space direction="vertical" size="small">
                             <Text className="text-gray-600 flex items-center gap-2">
-                                <EnvironmentFilled /> 123 Nguyễn Văn Linh, Đà Nẵng
+                                <EnvironmentFilled /> Thượng Thôn, Yên Phong, Bắc Ninh
                             </Text>
                             <Text className="text-gray-600 flex items-center gap-2">
                                 <PhoneFilled /> 0123 456 789
                             </Text>
                             <Text className="text-gray-600 flex items-center gap-2">
-                                <MailFilled /> contact@emtshop.com
+                                <MailFilled /> hungphammanh777@gmail.com
                             </Text>
                         </Space>
                     </Col>

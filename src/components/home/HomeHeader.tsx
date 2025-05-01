@@ -4,6 +4,7 @@ import { Layout, Typography, Button, Badge, Input, Dropdown } from 'antd';
 import { ShoppingCartOutlined, UserOutlined, SearchOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { startProgress, doneProgress } from '@/utils/nprogress';
+import { useCart } from '@/contexts/CartContext';
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -12,6 +13,9 @@ const { Search } = Input;
 const HomeHeader: React.FC = () => {
     const router = useRouter();
     const [currentLang, setCurrentLang] = useState('vi');
+    const { cartItems } = useCart();
+
+    const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     const handleNavigation = (href: string) => {
         startProgress();
@@ -94,7 +98,7 @@ const HomeHeader: React.FC = () => {
                         className="flex items-center justify-center text-[#333333] hover:text-white hover:bg-[#d73211] transition-all h-10 w-10 rounded-full"
                     >
                         <Badge
-                            count={0}
+                            count={cartItemCount}
                             size="small"
                             className="flex items-center [&_.ant-badge-count]:!bg-[#ee4d2d] [&_.ant-badge-count]:!text-white"
                         >

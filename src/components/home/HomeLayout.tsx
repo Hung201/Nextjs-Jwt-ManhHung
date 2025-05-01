@@ -17,7 +17,7 @@ const HomeLayout: React.FC<HomeLayoutProps> = ({ children }) => {
     }, []);
 
     return (
-        <Layout style={{ minHeight: '100vh', background: '#fff' }}>
+        <Layout style={{ minHeight: '100vh', background: '#f2f2f2' }}>
             <HomeHeader />
             <Content style={{
                 padding: '24px',

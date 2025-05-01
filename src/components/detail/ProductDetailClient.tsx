@@ -3,16 +3,32 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Typography, Button, Rate, Card, Divider, Image, List, Badge, message } from 'antd';
 import { HeartOutlined, ShareAltOutlined, EnvironmentOutlined, PhoneOutlined } from '@ant-design/icons';
 import HomeLayout from '@/components/home/HomeLayout';
+import ProductOptionsModal from './ProductOptionsModal';
 import { doneProgress } from '@/utils/nprogress';
+import { useCart } from '@/contexts/CartContext';
 
 const { Title, Text, Paragraph } = Typography;
 
 const ProductDetailClient = ({ data }: { data: any }) => {
-    console.log('ProductDetailClient data:', data);
+    console.log('>>> check restaurant data:', data);
     if (!data) return <div>Không có dữ liệu sản phẩm!</div>;
     const [activeSection, setActiveSection] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<any>(null);
+    const { addToCart } = useCart();
     const restaurant = data;
     const menus = restaurant.menus || [];
+
+    // Log menu items and their options
+    useEffect(() => {
+        menus.forEach((menu: any) => {
+            console.log('Menu:', menu.title);
+            menu.items?.forEach((item: any) => {
+                console.log('Item:', item.title);
+                console.log('Item Options:', item.options);
+            });
+        });
+    }, [menus]);
 
     const handleMenuClick = (menuId: string) => {
         const element = document.getElementById(menuId);
@@ -79,10 +95,27 @@ const ProductDetailClient = ({ data }: { data: any }) => {
         return `http://localhost:8080/uploads/${img}`;
     };
 
+    const handleAddToCart = (item: any) => {
+        if (item.options && item.options.length > 0) {
+            setSelectedItem(item);
+            setIsModalOpen(true);
+        } else {
+            // Trực tiếp thêm vào giỏ hàng nếu không có options
+            const cartItem = {
+                id: item._id,
+                name: item.title,
+                price: item.base_price,
+                quantity: 1,
+                image: getImageSrc(item.image),
+                selectedOptions: {}
+            };
+            addToCart(cartItem);
+        }
+    };
+
     return (
         <HomeLayout>
-
-            <div className="flex flex-col max-w-4xl mx-auto my-8 gap-8">
+            <div className="flex flex-col max-w-7xl mx-auto my-8 gap-8 bg-[#f2f2f2] p-8 min-h-screen">
                 {/* Product Detail */}
                 <Card className="shadow-lg rounded-lg overflow-hidden">
                     <Row gutter={[32, 32]}>
@@ -117,6 +150,14 @@ const ProductDetailClient = ({ data }: { data: any }) => {
                         </Col>
                     </Row>
                 </Card>
+
+                {/* Options Modal */}
+                <ProductOptionsModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    selectedItem={selectedItem}
+                />
+
                 {/* Menu Section Below */}
                 <Card className="shadow-lg rounded-lg overflow-hidden">
                     <div className="w-full bg-white rounded-xl p-6">
@@ -153,7 +194,12 @@ const ProductDetailClient = ({ data }: { data: any }) => {
                                                                     {item.description && <div className="text-gray-400 text-xs truncate">{item.description}</div>}
                                                                 </div>
                                                                 <div className="text-[#ee4d2d] font-bold text-base min-w-[70px] text-right">{item.base_price?.toLocaleString()}<span className="text-xs align-super">đ</span></div>
-                                                                <button className="ml-2 bg-[#ee4d2d] hover:bg-[#d73211] shadow text-white rounded-full w-8 h-8 flex items-center justify-center text-xl transition-all hover:scale-105 border-none focus:outline-none"><span className="pb-0.5">+</span></button>
+                                                                <button
+                                                                    onClick={() => handleAddToCart(item)}
+                                                                    className="ml-2 bg-[#FF4D4F] hover:bg-[#FF7875] shadow text-white rounded-full w-8 h-8 flex items-center justify-center text-xl transition-all hover:scale-105 border-none focus:outline-none"
+                                                                >
+                                                                    <span className="pb-0.5">+</span>
+                                                                </button>
                                                             </li>
                                                         ))}
                                                     </ul>
