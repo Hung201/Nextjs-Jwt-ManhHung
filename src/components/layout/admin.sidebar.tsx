@@ -31,7 +31,7 @@ const AdminSideBar = () => {
     const items: MenuItem[] = [
         {
             key: 'grp',
-            label: 'Hỏi Dân IT',
+            label: 'EMT',
             type: 'group',
             children: [
                 {
@@ -72,6 +72,7 @@ const AdminSideBar = () => {
     return (
         <Sider
             collapsed={collapseMenu}
+            width={250}
         >
             <Menu
                 mode="inline"

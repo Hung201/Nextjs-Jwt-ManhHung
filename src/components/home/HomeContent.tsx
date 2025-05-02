@@ -1,24 +1,35 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { Row, Col, Input, Select, Typography, message, Pagination } from 'antd';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Row, Col, Typography, message, SelectProps } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import HomeCard from './HomeCard';
 import { useRouter } from 'next/navigation';
-import { startProgress } from '@/utils/nprogress';
+import { startProgress, doneProgress, navigateWithProgress } from '@/utils/nprogress';
 import { getRestaurants } from '@/services/apiServices';
 import { Restaurant, PaginationState, RestaurantResponse } from '@/types/restaurant';
+import dynamic from 'next/dynamic';
+import debounce from 'lodash/debounce';
 
 const { Title } = Typography;
-const { Option } = Select;
+
+// Dynamically import components that might cause hydration issues
+const Input = dynamic(() => import('antd').then(mod => mod.Input), { ssr: false });
+const Select = dynamic(() => import('antd').then(mod => mod.Select), { ssr: false });
+const Pagination = dynamic(() => import('antd').then(mod => mod.Pagination), {
+    ssr: false,
+    loading: () => <div className="h-8" /> // Placeholder for pagination height
+});
+
+type SortByType = 'popular' | 'rating' | 'a-z' | 'z-a';
 
 const HomeContent = () => {
     const router = useRouter();
     const [searchText, setSearchText] = useState('');
-    const [sortBy, setSortBy] = useState('popular');
+    const [sortBy, setSortBy] = useState<SortByType>('popular');
     const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
     const [pagination, setPagination] = useState<PaginationState>({
         current: 1,
-        pageSize: 4,
+        pageSize: 8,
         total: 0,
         pages: 1
     });
@@ -52,8 +63,9 @@ const HomeContent = () => {
     };
 
     const handleCardClick = (id: string) => {
-        startProgress();
-        router.push(`/product/${id}`);
+        navigateWithProgress(() => {
+            router.push(`/product/${id}`);
+        });
     };
 
     const handlePageChange = (page: number, pageSize: number) => {
@@ -64,38 +76,90 @@ const HomeContent = () => {
         });
     };
 
+    const handleSortChange = (value: unknown) => {
+        if (value === 'popular' || value === 'rating' || value === 'a-z' || value === 'z-a') {
+            setSortBy(value);
+        }
+    };
+
+    // Debounced search handler
+    const debouncedSearch = useCallback(
+        debounce((value: string) => {
+            setSearchText(value.toLowerCase());
+        }, 300),
+        []
+    );
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        debouncedSearch(e.target.value);
+    };
+
+    // Memoize the filtered and sorted restaurants
+    const displayedRestaurants = useMemo(() => {
+        let result = [...restaurants];
+
+        // Apply search filter
+        if (searchText) {
+            result = result.filter(restaurant =>
+                restaurant.name.toLowerCase().includes(searchText) ||
+                restaurant.address.toLowerCase().includes(searchText)
+            );
+        }
+
+        // Apply sorting
+        switch (sortBy) {
+            case 'rating':
+                result.sort((a, b) => b.rating - a.rating);
+                break;
+            case 'a-z':
+                result.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case 'z-a':
+                result.sort((a, b) => b.name.localeCompare(a.name));
+                break;
+            // 'popular' is default, no need to sort
+        }
+
+        return result;
+    }, [restaurants, searchText, sortBy]);
+
+    const sortOptions = [
+        { value: 'popular', label: 'Popular' },
+        { value: 'rating', label: 'Rating' },
+        { value: 'a-z', label: 'A-Z' },
+        { value: 'z-a', label: 'Z-A' }
+    ];
+
     return (
         <>
             <Row gutter={[24, 24]}>
+
                 <Col span={24}>
-                    <Title level={2}>Welcome to EMTSHOP</Title>
-                </Col>
-                <Col span={24}>
-                    <div style={{ marginBottom: '24px' }}>
-                        <Title level={2}>Restaurant List</Title>
-                        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+                    <div className="mb-6">
+                        <div className="flex gap-4 mb-6">
                             <Input
                                 placeholder="Search restaurants..."
                                 prefix={<SearchOutlined />}
-                                value={searchText}
-                                onChange={(e) => setSearchText(e.target.value)}
-                                style={{ width: '300px' }}
+                                onChange={handleSearch}
+                                allowClear
+                                className="max-w-[300px]"
                             />
                             <Select
                                 value={sortBy}
-                                onChange={setSortBy}
-                                style={{ width: '200px' }}
-                            >
-                                <Option value="popular">Popular</Option>
-                                <Option value="rating">Rating</Option>
-                            </Select>
+                                onChange={handleSortChange}
+                                className="w-[200px]"
+                                options={sortOptions}
+                            />
                         </div>
                     </div>
 
                     <Row gutter={[16, 16]}>
-                        {restaurants.map((restaurant) => (
+                        {displayedRestaurants.map((restaurant) => (
                             <Col xs={24} sm={12} md={8} lg={6} key={restaurant._id}>
-                                <div onClick={() => handleCardClick(restaurant._id)} style={{ cursor: 'pointer' }}>
+                                <div
+                                    onClick={() => handleCardClick(restaurant._id)}
+                                    className="cursor-pointer"
+                                >
                                     <HomeCard
                                         id={restaurant._id}
                                         name={restaurant.name}
@@ -109,7 +173,13 @@ const HomeContent = () => {
                         ))}
                     </Row>
 
-                    <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                    {displayedRestaurants.length === 0 && !loading && (
+                        <div className="text-center text-gray-500 py-8">
+                            No restaurants found
+                        </div>
+                    )}
+
+                    <div className="mt-6 text-center">
                         <Pagination
                             current={pagination.current}
                             pageSize={pagination.pageSize}

@@ -4,7 +4,7 @@ import { sendRequest } from "@/utils/api";
 
 const ManageMenuPage = async ({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) => {
     const current = searchParams?.current ?? 1;
-    const pageSize = searchParams?.pageSize ?? 10;
+    const pageSize = searchParams?.pageSize ?? 8;
     const session = await auth();
 
     // Lấy danh sách menus

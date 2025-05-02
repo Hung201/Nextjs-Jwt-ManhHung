@@ -1,13 +1,18 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Typography, Button, Rate, Card, Divider, Image, List, Badge, message } from 'antd';
+import { Row, Col, Typography, Button, Card, Divider, List, message } from 'antd';
 import { HeartOutlined, ShareAltOutlined, EnvironmentOutlined, PhoneOutlined } from '@ant-design/icons';
 import HomeLayout from '@/components/home/HomeLayout';
 import ProductOptionsModal from './ProductOptionsModal';
 import { doneProgress } from '@/utils/nprogress';
 import { useCart } from '@/contexts/CartContext';
+import dynamic from 'next/dynamic';
 
 const { Title, Text, Paragraph } = Typography;
+
+// Dynamically import components that might cause hydration issues
+const Image = dynamic(() => import('antd').then(mod => mod.Image), { ssr: false });
+const Rate = dynamic(() => import('antd').then(mod => mod.Rate), { ssr: false });
 
 const ProductDetailClient = ({ data }: { data: any }) => {
     console.log('>>> check restaurant data:', data);
@@ -30,68 +35,49 @@ const ProductDetailClient = ({ data }: { data: any }) => {
         });
     }, [menus]);
 
+    // Debounce scroll handling
+    useEffect(() => {
+        let timeoutId: NodeJS.Timeout;
+        const handleScroll = () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                const scrollPosition = window.scrollY + 100;
+                menus.forEach((menu: any) => {
+                    const element = document.getElementById(menu._id);
+                    if (element) {
+                        const { top, bottom } = element.getBoundingClientRect();
+                        if (top <= 100 && bottom >= 100) {
+                            setActiveSection(menu._id);
+                        }
+                    }
+                });
+            }, 100);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            clearTimeout(timeoutId);
+        };
+    }, [menus]);
+
     const handleMenuClick = (menuId: string) => {
         const element = document.getElementById(menuId);
         if (element) {
-            const offset = -80; // Offset để tránh header che mất nội dung
+            const offset = -80;
             const elementPosition = element.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset + offset;
-
-            // Custom smooth scroll animation
-            const startPosition = window.pageYOffset;
-            const distance = offsetPosition - startPosition;
-            const duration = 800; // Thời gian animation (ms)
-            let start: number | null = null;
-
-            const animation = (currentTime: number) => {
-                if (start === null) start = currentTime;
-                const timeElapsed = currentTime - start;
-                const progress = Math.min(timeElapsed / duration, 1);
-
-                // Easing function để tạo hiệu ứng mượt mà
-                const easeInOutCubic = (t: number) => {
-                    return t < 0.5
-                        ? 4 * t * t * t
-                        : 1 - Math.pow(-2 * t + 2, 3) / 2;
-                };
-
-                window.scrollTo(0, startPosition + distance * easeInOutCubic(progress));
-
-                if (timeElapsed < duration) {
-                    requestAnimationFrame(animation);
-                }
-            };
-
-            requestAnimationFrame(animation);
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
             setActiveSection(menuId);
         }
     };
 
-    // Theo dõi section đang hiển thị khi scroll
-    useEffect(() => {
-        const handleScroll = () => {
-            const scrollPosition = window.scrollY + 100; // Thêm offset
-
-            menus.forEach((menu: any) => {
-                const element = document.getElementById(menu._id);
-                if (element) {
-                    const { top, bottom } = element.getBoundingClientRect();
-                    if (top <= 100 && bottom >= 100) {
-                        setActiveSection(menu._id);
-                    }
-                }
-            });
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [menus]);
-
-    // Xử lý image base64 hoặc tên file
     const getImageSrc = (img: string) => {
         if (!img || img.trim() === '') return '/no-image.png';
         if (img.startsWith('data:image')) return img;
-        // Nếu là tên file, trả về đúng đường dẫn ảnh trên server
         return `http://localhost:8080/uploads/${img}`;
     };
 
@@ -100,7 +86,6 @@ const ProductDetailClient = ({ data }: { data: any }) => {
             setSelectedItem(item);
             setIsModalOpen(true);
         } else {
-            // Trực tiếp thêm vào giỏ hàng nếu không có options
             const cartItem = {
                 id: item._id,
                 name: item.title,
@@ -110,22 +95,23 @@ const ProductDetailClient = ({ data }: { data: any }) => {
                 selectedOptions: {}
             };
             addToCart(cartItem);
+            message.success('Đã thêm vào giỏ hàng');
         }
     };
 
     return (
         <HomeLayout>
             <div className="flex flex-col max-w-7xl mx-auto my-8 gap-8 bg-[#f2f2f2] p-8 min-h-screen">
-                {/* Product Detail */}
                 <Card className="shadow-lg rounded-lg overflow-hidden">
                     <Row gutter={[32, 32]}>
                         <Col xs={24} md={12}>
-                            <Image
-                                src={getImageSrc(restaurant.image)}
-                                alt={restaurant.name}
-                                className="w-full h-[400px] object-cover rounded-lg"
-                                fallback="/no-image.png"
-                            />
+                            <div className="w-full h-[400px] relative">
+                                <img
+                                    src={getImageSrc(restaurant.image)}
+                                    alt={restaurant.name}
+                                    className="w-full h-full object-cover rounded-lg"
+                                />
+                            </div>
                         </Col>
                         <Col xs={24} md={12}>
                             <div className="p-4">
@@ -151,19 +137,16 @@ const ProductDetailClient = ({ data }: { data: any }) => {
                     </Row>
                 </Card>
 
-                {/* Options Modal */}
                 <ProductOptionsModal
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     selectedItem={selectedItem}
                 />
 
-                {/* Menu Section Below */}
                 <Card className="shadow-lg rounded-lg overflow-hidden">
                     <div className="w-full bg-white rounded-xl p-6">
                         <div className="text-xl font-bold text-[#ee4d2d] mb-6 text-center tracking-wide">THỰC ĐƠN</div>
                         <div className="flex flex-col md:flex-row gap-6">
-                            {/* Left: Menu categories - Fixed position on scroll */}
                             <div className="md:w-1/4 w-full">
                                 <div className="bg-white rounded-lg shadow-lg p-4 flex flex-col gap-2 md:sticky md:top-20">
                                     {menus.map((menu: any) => (
@@ -177,7 +160,6 @@ const ProductDetailClient = ({ data }: { data: any }) => {
                                     ))}
                                 </div>
                             </div>
-                            {/* Right: All menu sections */}
                             <div className="md:w-3/4 w-full">
                                 <div className="bg-white p-4">
                                     {menus.map((menu: any, index: number) => (
@@ -193,7 +175,7 @@ const ProductDetailClient = ({ data }: { data: any }) => {
                                                                     <div className="font-semibold text-base truncate">{item.title}</div>
                                                                     {item.description && <div className="text-gray-400 text-xs truncate">{item.description}</div>}
                                                                 </div>
-                                                                <div className="text-[#ee4d2d] font-bold text-base min-w-[70px] text-right">{item.base_price?.toLocaleString()}<span className="text-xs align-super">đ</span></div>
+                                                                <div className="text-[#ee4d2d] font-bold text-base min-w-[70px] text-right">{item.base_price?.toLocaleString()}<sup className="text-xs">đ</sup></div>
                                                                 <button
                                                                     onClick={() => handleAddToCart(item)}
                                                                     className="ml-2 bg-[#FF4D4F] hover:bg-[#FF7875] shadow text-white rounded-full w-8 h-8 flex items-center justify-center text-xl transition-all hover:scale-105 border-none focus:outline-none"

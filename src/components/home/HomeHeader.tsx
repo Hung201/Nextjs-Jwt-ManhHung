@@ -1,26 +1,38 @@
 'use client';
-import React, { useState } from 'react';
-import { Layout, Typography, Button, Badge, Input, Dropdown } from 'antd';
+import React, { useState, useMemo } from 'react';
+import { Layout, Typography, Button, Input, Dropdown } from 'antd';
 import { ShoppingCartOutlined, UserOutlined, SearchOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import { startProgress, doneProgress } from '@/utils/nprogress';
+import { navigateWithProgress } from '@/utils/nprogress';
 import { useCart } from '@/contexts/CartContext';
+import dynamic from 'next/dynamic';
 
 const { Header } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
+
+// Dynamically import Badge with no SSR
+const Badge = dynamic(() => import('antd').then(mod => mod.Badge), {
+    ssr: false,
+    loading: () => null // Add loading state to prevent layout shift
+});
 
 const HomeHeader: React.FC = () => {
     const router = useRouter();
     const [currentLang, setCurrentLang] = useState('vi');
     const { cartItems } = useCart();
 
-    const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+    // Memoize cartItemCount calculation
+    const cartItemCount = useMemo(() =>
+        cartItems.reduce((total, item) => total + item.quantity, 0),
+        [cartItems]
+    );
 
+    // Debounce navigation to prevent rapid clicks
     const handleNavigation = (href: string) => {
-        startProgress();
-        router.push(href);
-        setTimeout(doneProgress, 500);
+        navigateWithProgress(() => {
+            router.push(href);
+        });
     };
 
     const handleSearch = (value: string) => {
@@ -100,6 +112,8 @@ const HomeHeader: React.FC = () => {
                         <Badge
                             count={cartItemCount}
                             size="small"
+                            showZero={false}
+                            offset={[-2, 2]}
                             className="flex items-center [&_.ant-badge-count]:!bg-[#ee4d2d] [&_.ant-badge-count]:!text-white"
                         >
                             <ShoppingCartOutlined style={cartIconStyle} />

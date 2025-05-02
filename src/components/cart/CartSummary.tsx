@@ -4,6 +4,7 @@ import React from 'react';
 import { Button, Typography } from 'antd';
 import { ShoppingOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
+import { navigateWithProgress } from '@/utils/nprogress';
 
 const { Text } = Typography;
 
@@ -23,7 +24,9 @@ const CartSummary: React.FC<CartSummaryProps> = ({
     };
 
     const handleCheckout = () => {
-        router.push('/cart/checkout');
+        navigateWithProgress(() => {
+            router.push('/cart/checkout');
+        });
     };
 
     return (
