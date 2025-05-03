@@ -81,13 +81,9 @@ export const handleDeleteUserAction = async (id: any) => {
 
 // Restaurant Actions
 export const getRestaurantsWithPagination = async (page: number, limit: number) => {
-    const session = await auth();
     const res = await sendRequest<IBackendRes<any>>({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/restaurants?current=${page}&pageSize=${limit}`,
         method: "GET",
-        headers: {
-            Authorization: `Bearer ${session?.user?.access_token}`,
-        },
         next: { tags: ['restaurants'] }
     });
     return res;
@@ -257,5 +253,17 @@ export const handleDeleteMenuItemOptionAction = async (id: any) => {
         },
     });
     revalidateTag("list-menu-item-options");
+    return res;
+};
+
+export const getAllUsers = async () => {
+    const session = await auth();
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users`,
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+        }
+    });
     return res;
 };

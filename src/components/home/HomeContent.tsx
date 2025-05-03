@@ -5,10 +5,10 @@ import { SearchOutlined } from '@ant-design/icons';
 import HomeCard from './HomeCard';
 import { useRouter } from 'next/navigation';
 import { startProgress, doneProgress, navigateWithProgress } from '@/utils/nprogress';
-import { getRestaurants } from '@/services/apiServices';
 import { Restaurant, PaginationState, RestaurantResponse } from '@/types/restaurant';
 import dynamic from 'next/dynamic';
 import debounce from 'lodash/debounce';
+import { getRestaurantsWithPagination } from '@/utils/actions';
 
 const { Title } = Typography;
 
@@ -42,7 +42,7 @@ const HomeContent = () => {
     const fetchRestaurants = async () => {
         try {
             setLoading(true);
-            const response: RestaurantResponse = await getRestaurants(pagination.current, pagination.pageSize);
+            const response = await getRestaurantsWithPagination(pagination.current, pagination.pageSize);
             if (response.statusCode === 200) {
                 setRestaurants(response.data.result);
                 setPagination({

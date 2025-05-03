@@ -1,10 +1,10 @@
 'use client';
-import { handleCreateRestaurantAction } from '@/utils/actions';
+import { handleCreateRestaurantAction, getAllUsers } from '@/utils/actions';
 import {
     Modal, Input, Form, Row, Col, message,
-    notification, InputNumber, Upload
+    notification, InputNumber, Upload, Select
 } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
 
@@ -25,6 +25,15 @@ const RestaurantCreate = (props: IProps) => {
     const [previewImage, setPreviewImage] = useState('');
     const [previewOpen, setPreviewOpen] = useState(false);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [users, setUsers] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const res = await getAllUsers();
+            setUsers(res?.data?.results || []);
+        };
+        fetchUsers();
+    }, []);
 
     const handleCloseCreateModal = () => {
         form.resetFields()
@@ -130,6 +139,7 @@ const RestaurantCreate = (props: IProps) => {
             }
             const res = await handleCreateRestaurantAction({
                 ...formData,
+                user_id: values.user_id,
                 image: imageData
             });
             if (res?.data) {
@@ -211,6 +221,26 @@ const RestaurantCreate = (props: IProps) => {
                             rules={[{ required: true, message: 'Please input address!' }]}
                         >
                             <Input placeholder="Enter address" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="User"
+                            name="user_id"
+                            rules={[{ required: true, message: 'Please select a user!' }]}
+                        >
+                            <Select
+                                showSearch
+                                placeholder="Select a user"
+                                optionFilterProp="label"
+                                filterOption={(input, option) =>
+                                    (option?.label as string).toLowerCase().includes(input.toLowerCase())
+                                }
+                                options={users.map(user => ({
+                                    value: user._id,
+                                    label: user.name || user.email
+                                }))}
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={24}>

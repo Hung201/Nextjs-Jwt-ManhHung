@@ -1,11 +1,12 @@
 import { handleUpdateRestaurantAction } from '@/utils/actions';
 import {
     Modal, Input, Form, Row, Col, message,
-    notification, InputNumber, Upload
+    notification, InputNumber, Upload, Select
 } from 'antd';
 import { useEffect, useState } from 'react';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
+import { getAllUsers } from '@/utils/actions';
 
 interface IProps {
     isUpdateModalOpen: boolean;
@@ -28,6 +29,7 @@ const RestaurantUpdate = (props: IProps) => {
     const [previewImage, setPreviewImage] = useState('');
     const [previewOpen, setPreviewOpen] = useState(false);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [users, setUsers] = useState<any[]>([]);
 
     useEffect(() => {
         if (dataUpdate) {
@@ -37,7 +39,8 @@ const RestaurantUpdate = (props: IProps) => {
                 email: dataUpdate.email,
                 phone: dataUpdate.phone,
                 address: dataUpdate.address,
-                rating: dataUpdate.rating
+                rating: dataUpdate.rating,
+                user_id: dataUpdate.user_id
             });
             if (dataUpdate.image) {
                 setFileList([{
@@ -51,6 +54,14 @@ const RestaurantUpdate = (props: IProps) => {
             }
         }
     }, [dataUpdate]);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const res = await getAllUsers();
+            setUsers(res?.data?.results || []);
+        };
+        fetchUsers();
+    }, []);
 
     const handleCloseUpdateModal = () => {
         form.resetFields();
@@ -140,7 +151,7 @@ const RestaurantUpdate = (props: IProps) => {
     const onFinish = async (values: any) => {
         if (dataUpdate) {
             try {
-                const { _id, name, email, phone, address, rating } = values;
+                const { _id, name, email, phone, address, rating, user_id } = values;
                 let imageData = dataUpdate.image;
                 if (fileList[0]?.originFileObj) {
                     const file = fileList[0].originFileObj;
@@ -162,6 +173,7 @@ const RestaurantUpdate = (props: IProps) => {
                     phone,
                     address,
                     rating,
+                    user_id,
                     image: fileList.length === 0 ? "" : imageData
                 });
                 if (res?.data) {
@@ -240,6 +252,26 @@ const RestaurantUpdate = (props: IProps) => {
                             rules={[{ required: true, message: 'Please input rating!' }]}
                         >
                             <InputNumber min={1} max={5} style={{ width: '100%' }} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="User"
+                            name="user_id"
+                            rules={[{ required: true, message: 'Please select a user!' }]}
+                        >
+                            <Select
+                                showSearch
+                                placeholder="Select a user"
+                                optionFilterProp="label"
+                                filterOption={(input, option) =>
+                                    (option?.label as string).toLowerCase().includes(input.toLowerCase())
+                                }
+                                options={users.map(user => ({
+                                    value: user._id,
+                                    label: user.name || user.email
+                                }))}
+                            />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
