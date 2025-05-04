@@ -15,7 +15,7 @@ const AdminLayout = async ({
         <AdminContextProvider>
             <div style={{ display: "flex" }}>
                 <div className='left-side' style={{ minWidth: 80 }}>
-                    <AdminSideBar />
+                    <AdminSideBar session={session} />
                 </div>
                 <div className='right-side' style={{ flex: 1 }}>
                     <AdminHeader session={session} />

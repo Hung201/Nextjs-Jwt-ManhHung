@@ -7,7 +7,8 @@ import {
     ShopOutlined,
     MenuOutlined,
     CoffeeOutlined,
-    PlusCircleOutlined
+    PlusCircleOutlined,
+    ShoppingCartOutlined
 } from '@ant-design/icons';
 import React, { useContext } from 'react';
 import { AdminContext } from "@/library/admin.context";
@@ -17,7 +18,12 @@ import { useRouter } from 'next/navigation';
 import { startProgress, doneProgress } from '@/utils/nprogress';
 
 type MenuItem = Required<MenuProps>['items'][number];
-const AdminSideBar = () => {
+
+interface AdminSideBarProps {
+    session?: any;
+}
+
+const AdminSideBar = ({ session }: AdminSideBarProps) => {
     const { Sider } = Layout;
     const { collapseMenu } = useContext(AdminContext)!;
     const router = useRouter();
@@ -28,44 +34,96 @@ const AdminSideBar = () => {
         doneProgress();
     };
 
+    const role = session?.user?.role;
+
+    let children: MenuItem[] = [];
+    if (role === 'ADMIN') {
+        children = [
+            {
+                key: "dashboard",
+                label: <span onClick={() => handleNavigation("/dashboard")}>Dashboard</span>,
+                icon: <DashboardOutlined />,
+            },
+            {
+                key: "users",
+                label: <span onClick={() => handleNavigation("/dashboard/user")}>Manage Users</span>,
+                icon: <UserOutlined />,
+            },
+            {
+                key: "restaurants",
+                label: <span onClick={() => handleNavigation("/dashboard/restaurant")}>Manage Restaurants</span>,
+                icon: <ShopOutlined />,
+            },
+            {
+                key: "menus",
+                label: <span onClick={() => handleNavigation("/dashboard/menus")}>Manage Menus</span>,
+                icon: <MenuOutlined />,
+            },
+            {
+                key: "menu.items",
+                label: <span onClick={() => handleNavigation("/dashboard/menu.items")}>Manage Menu Items</span>,
+                icon: <CoffeeOutlined />,
+            },
+            {
+                key: "menu.item.option",
+                label: <span onClick={() => handleNavigation("/dashboard/menu.item.option")}>Manage Menu Item Option</span>,
+                icon: <PlusCircleOutlined />,
+            },
+        ];
+    } else if (role === 'USERS') {
+        children = [
+            {
+                key: "restaurants",
+                label: <span onClick={() => handleNavigation("/dashboard/restaurant")}>Manage Restaurants</span>,
+                icon: <ShopOutlined />,
+            },
+            {
+                key: "menus",
+                label: <span onClick={() => handleNavigation("/dashboard/menus")}>Manage Menus</span>,
+                icon: <MenuOutlined />,
+            },
+            {
+                key: "menu.items",
+                label: <span onClick={() => handleNavigation("/dashboard/menu.items")}>Manage Menu Items</span>,
+                icon: <CoffeeOutlined />,
+            },
+            {
+                key: "menu.item.option",
+                label: <span onClick={() => handleNavigation("/dashboard/menu.item.option")}>Manage Menu Item Option</span>,
+                icon: <PlusCircleOutlined />,
+            },
+        ];
+    } else if (role === 'OWNER') {
+        children = [
+            {
+                key: "owner.restaurant",
+                label: <span onClick={() => handleNavigation("/dashboard/owner.restaurant")}>Manage My Restaurant</span>,
+                icon: <ShopOutlined />,
+            },
+            {
+                key: "menus",
+                label: <span onClick={() => handleNavigation("/dashboard/menus")}>Manage Menus</span>,
+                icon: <MenuOutlined />,
+            },
+            {
+                key: "menu.items",
+                label: <span onClick={() => handleNavigation("/dashboard/menu.items")}>Manage Menu Items</span>,
+                icon: <CoffeeOutlined />,
+            },
+            {
+                key: "menu.item.option",
+                label: <span onClick={() => handleNavigation("/dashboard/menu.item.option")}>Manage Menu Item Option</span>,
+                icon: <PlusCircleOutlined />,
+            },
+        ];
+    }
+
     const items: MenuItem[] = [
         {
             key: 'grp',
             label: 'EMT',
             type: 'group',
-            children: [
-                {
-                    key: "dashboard",
-                    label: <span onClick={() => handleNavigation("/dashboard")}>Dashboard</span>,
-                    icon: <DashboardOutlined />,
-                },
-                {
-                    key: "users",
-                    label: <span onClick={() => handleNavigation("/dashboard/user")}>Manage Users</span>,
-                    icon: <UserOutlined />,
-                },
-                {
-                    key: "restaurants",
-                    label: <span onClick={() => handleNavigation("/dashboard/restaurant")}>Manage Restaurants</span>,
-                    icon: <ShopOutlined />,
-                },
-                {
-                    key: "menus",
-                    label: <span onClick={() => handleNavigation("/dashboard/menus")}>Manage Menus</span>,
-                    icon: <MenuOutlined />,
-                }
-                ,
-                {
-                    key: "menu.items",
-                    label: <span onClick={() => handleNavigation("/dashboard/menu.items")}>Manage Menu Items</span>,
-                    icon: <CoffeeOutlined />,
-                },
-                {
-                    key: "menu.item.option",
-                    label: <span onClick={() => handleNavigation("/dashboard/menu.item.option")}>Manage Menu Item Option</span>,
-                    icon: <PlusCircleOutlined />,
-                }
-            ],
+            children,
         },
     ];
 
