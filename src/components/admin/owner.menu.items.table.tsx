@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { Table, Button, Popconfirm, message } from "antd";
 import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
-import MenuItemsCreate from "./menu.items.create";
-import MenuItemsUpdate from "./menu.items.update";
+import OwnerMenuItemsCreate from "./owner.menu.items.create";
+import OwnerMenuItemUpdate from "./owner.menu.items.update";
 import { handleDeleteMenuItemAction } from "@/utils/actions";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -13,7 +13,7 @@ interface IProps {
     menus: any[];
 }
 
-const MenuItemsTable = ({ menuItems, meta, menus }: IProps) => {
+const OwnerMenuItemsTable = ({ menuItems, meta, menus }: IProps) => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [dataUpdate, setDataUpdate] = useState<any>(null);
@@ -70,12 +70,12 @@ const MenuItemsTable = ({ menuItems, meta, menus }: IProps) => {
                     router.push(`?${params.toString()}`);
                 }}
             />
-            <MenuItemsCreate
+            <OwnerMenuItemsCreate
                 isCreateModalOpen={isCreateModalOpen}
                 setIsCreateModalOpen={setIsCreateModalOpen}
                 menus={menus}
             />
-            <MenuItemsUpdate
+            <OwnerMenuItemUpdate
                 isUpdateModalOpen={isUpdateModalOpen}
                 setIsUpdateModalOpen={setIsUpdateModalOpen}
                 dataUpdate={dataUpdate}
@@ -86,4 +86,4 @@ const MenuItemsTable = ({ menuItems, meta, menus }: IProps) => {
     );
 };
 
-export default MenuItemsTable;
+export default OwnerMenuItemsTable; 

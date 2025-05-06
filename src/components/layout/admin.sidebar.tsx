@@ -105,22 +105,16 @@ const AdminSideBar = ({ session }: AdminSideBarProps) => {
                 label: <span onClick={() => handleNavigation("/dashboard/owner.menus")}>Manage My Menu</span>,
                 icon: <MenuOutlined />,
             },
-
-            // {
-            //     key: "menus",
-            //     label: <span onClick={() => handleNavigation("/dashboard/menus")}>Manage Menus</span>,
-            //     icon: <MenuOutlined />,
-            // },
-            // {
-            //     key: "menu.items",
-            //     label: <span onClick={() => handleNavigation("/dashboard/menu.items")}>Manage Menu Items</span>,
-            //     icon: <CoffeeOutlined />,
-            // },
-            // {
-            //     key: "menu.item.option",
-            //     label: <span onClick={() => handleNavigation("/dashboard/menu.item.option")}>Manage Menu Item Option</span>,
-            //     icon: <PlusCircleOutlined />,
-            // },
+            {
+                key: "owner.menu.item",
+                label: <span onClick={() => handleNavigation("/dashboard/owner.menu.item")}>Manage My Menu Item</span>,
+                icon: <CoffeeOutlined />,
+            },
+            {
+                key: "owner.menu.item.option",
+                label: <span onClick={() => handleNavigation("/dashboard/owner.menu.item.option")}>Manage My Menu Item Option</span>,
+                icon: <PlusCircleOutlined />,
+            },
         ];
     }
 
