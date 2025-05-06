@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, Card, Divider, Radio, Modal, message } from 'antd';
 import { useCart } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 const { Title, Text } = Typography;
 type PaymentMethod = 'COD' | 'BANKING';
 interface CheckoutFormData {
@@ -20,6 +21,18 @@ const CheckoutClient = () => {
     const [form] = Form.useForm();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const router = useRouter();
+    const { data: session } = useSession();
+
+    useEffect(() => {
+        if (session?.user) {
+            form.setFieldsValue({
+                fullName: session.user.name || '',
+                phone: session.user.phone || '',
+                email: session.user.email || '',
+                address: session.user.address || '',
+            });
+        }
+    }, [session, form]);
 
     const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 

@@ -115,6 +115,11 @@ const AdminSideBar = ({ session }: AdminSideBarProps) => {
                 label: <span onClick={() => handleNavigation("/dashboard/owner.menu.item.option")}>Manage My Menu Item Option</span>,
                 icon: <PlusCircleOutlined />,
             },
+            {
+                key: "owner.order",
+                label: <span onClick={() => handleNavigation("/dashboard/owner.order")}>Manage My Order</span>,
+                icon: <ShoppingCartOutlined />,
+            },
         ];
     }
 

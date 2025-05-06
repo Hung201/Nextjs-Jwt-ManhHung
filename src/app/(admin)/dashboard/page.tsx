@@ -7,6 +7,9 @@ const DashboardPage = async () => {
     if (session?.user?.role === 'OWNER') {
         redirect('/dashboard/owner.restaurant');
     }
+    if (session?.user?.role === 'USERS') {
+        redirect('/dashboard/restaurant');
+    }
     return (
         <div>
             <AdminCard />

@@ -1,7 +1,7 @@
 import { handleUpdateUserAction } from '@/utils/actions';
 import {
     Modal, Input, Form, Row, Col, message,
-    notification, Upload, Button
+    notification, Upload, Button, Select
 } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
@@ -34,7 +34,8 @@ const UserUpdate = (props: IProps) => {
                 name: dataUpdate.name,
                 email: dataUpdate.email,
                 phone: dataUpdate.phone,
-                address: dataUpdate.address
+                address: dataUpdate.address,
+                role: dataUpdate.role
             });
 
             // Check both avatar and image fields
@@ -149,7 +150,7 @@ const UserUpdate = (props: IProps) => {
     const onFinish = async (values: any) => {
         if (dataUpdate) {
             try {
-                const { name } = values;
+                const { name, role } = values;
 
                 let imageData = null;
                 if (fileList[0]?.originFileObj) {
@@ -174,6 +175,7 @@ const UserUpdate = (props: IProps) => {
                 const res = await handleUpdateUserAction({
                     _id: dataUpdate._id,
                     name,
+                    role,
                     image: imageData
                 });
 
@@ -229,6 +231,20 @@ const UserUpdate = (props: IProps) => {
                                 rules={[{ required: true, message: 'Please input your name!' }]}
                             >
                                 <Input placeholder="Enter name" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Role"
+                                name="role"
+                                rules={[{ required: true, message: 'Please select a role!' }]}
+                            >
+                                <Select>
+                                    <Select.Option value="USERS">USERS</Select.Option>
+                                    <Select.Option value="ADMIN">ADMIN</Select.Option>
+                                    <Select.Option value="OWNER">OWNER</Select.Option>
+                                    <Select.Option value="CUSTOMER">CUSTOMER</Select.Option>
+                                </Select>
                             </Form.Item>
                         </Col>
                         <Col span={12}>

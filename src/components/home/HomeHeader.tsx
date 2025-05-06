@@ -1,11 +1,12 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import { Layout, Typography, Button, Input, Dropdown } from 'antd';
-import { ShoppingCartOutlined, UserOutlined, SearchOutlined, GlobalOutlined } from '@ant-design/icons';
+import { Layout, Typography, Button, Input, Dropdown, Space } from 'antd';
+import { ShoppingCartOutlined, UserOutlined, SearchOutlined, GlobalOutlined, DownOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { navigateWithProgress } from '@/utils/nprogress';
 import { useCart } from '@/contexts/CartContext';
 import dynamic from 'next/dynamic';
+import { useSession, signOut } from 'next-auth/react';
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -21,6 +22,7 @@ const HomeHeader: React.FC = () => {
     const router = useRouter();
     const [currentLang, setCurrentLang] = useState('vi');
     const { cartItems } = useCart();
+    const { data: session } = useSession();
 
     // Memoize cartItemCount calculation
     const cartItemCount = useMemo(() =>
@@ -67,6 +69,19 @@ const HomeHeader: React.FC = () => {
     const iconStyle = { color: '#333333', fontSize: '24px' };
     const cartIconStyle = { color: '#333333', fontSize: '28px' };
 
+    const user = session?.user;
+    const isCustomer = user && user.role === 'CUSTOMER';
+
+    const customerMenu = {
+        items: [
+            {
+                key: 'signout',
+                danger: true,
+                label: <span onClick={() => signOut({ callbackUrl: '/auth/login' })}>Sign out</span>,
+            },
+        ],
+    };
+
     return (
         <Header className="flex items-center justify-between px-6 shadow-lg sticky top-0 z-50 h-16 bg-white [&.ant-layout-header]:!bg-white">
             <div className="max-w-[1200px] w-full mx-auto flex items-center justify-between">
@@ -98,12 +113,23 @@ const HomeHeader: React.FC = () => {
                             <span className="ml-1">{currentLang.toUpperCase()}</span>
                         </Button>
                     </Dropdown>
-                    <Button
-                        onClick={() => handleNavigation('/profile')}
-                        type="text"
-                        className="flex items-center justify-center text-[#333333] hover:text-white hover:bg-[#d73211] transition-all h-10 w-10 rounded-full"
-                        icon={<UserOutlined style={iconStyle} />}
-                    />
+                    {isCustomer ? (
+                        <Dropdown menu={customerMenu} placement="bottomRight">
+                            <a onClick={e => e.preventDefault()} className="font-semibold text-[#333] px-4 cursor-pointer select-none">
+                                <Space>
+                                    Welcome, {user.name}
+                                    <DownOutlined />
+                                </Space>
+                            </a>
+                        </Dropdown>
+                    ) : (
+                        <Button
+                            onClick={() => handleNavigation('/auth/login')}
+                            type="text"
+                            className="flex items-center justify-center text-[#333333] hover:text-white hover:bg-[#d73211] transition-all h-10 w-10 rounded-full"
+                            icon={<UserOutlined style={iconStyle} />}
+                        />
+                    )}
                     <Button
                         onClick={() => handleNavigation('/cart')}
                         type="text"

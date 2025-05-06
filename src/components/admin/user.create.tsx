@@ -1,7 +1,7 @@
 import { handleCreateUserAction } from '@/utils/actions';
 import {
     Modal, Input, Form, Row, Col, message,
-    notification, Upload, Button
+    notification, Upload, Button, Select
 } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { useState } from 'react';
@@ -207,13 +207,28 @@ const UserCreate = (props: IProps) => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
+                                label="Role"
+                                name="role"
+                                rules={[{ required: true, message: 'Please select a role!' }]}
+                                initialValue="USERS"
+                            >
+                                <Select>
+                                    <Select.Option value="USERS">USERS</Select.Option>
+                                    <Select.Option value="ADMIN">ADMIN</Select.Option>
+                                    <Select.Option value="OWNER">OWNER</Select.Option>
+                                    <Select.Option value="CUSTOMER">CUSTOMER</Select.Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
                                 label="Phone"
                                 name="phone"
                             >
                                 <Input placeholder="Enter phone number" />
                             </Form.Item>
                         </Col>
-                        <Col span={24}>
+                        <Col span={12}>
                             <Form.Item
                                 label="Address"
                                 name="address"

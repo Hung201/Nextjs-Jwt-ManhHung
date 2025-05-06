@@ -1,7 +1,7 @@
 'use client'
 import { handleDeleteUserAction } from "@/utils/actions";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
-import { Button, Popconfirm, Table } from "antd"
+import { Button, Popconfirm, Table, Tag } from "antd"
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from "react";
 import UserCreate from "./user.create";
@@ -27,6 +27,21 @@ const UserTable = (props: IProps) => {
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
     const [dataUpdate, setDataUpdate] = useState<any>(null);
 
+    const getRoleColor = (role: string) => {
+        switch (role) {
+            case 'ADMIN':
+                return 'red';
+            case 'OWNER':
+                return 'blue';
+            case 'USERS':
+                return 'green';
+            case 'CUSTOMER':
+                return 'purple';
+            default:
+                return 'default';
+        }
+    };
+
     const columns = [
         {
             title: "STT",
@@ -43,6 +58,15 @@ const UserTable = (props: IProps) => {
         {
             title: 'Email',
             dataIndex: 'email',
+        },
+        {
+            title: 'Role',
+            dataIndex: 'role',
+            render: (role: string) => (
+                <Tag color={getRoleColor(role)}>
+                    {role}
+                </Tag>
+            )
         },
         {
             title: 'Actions',
