@@ -29,7 +29,7 @@ const HomeContent = () => {
     const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
     const [pagination, setPagination] = useState<PaginationState>({
         current: 1,
-        pageSize: 8,
+        pageSize: 10,
         total: 0,
         pages: 1
     });
