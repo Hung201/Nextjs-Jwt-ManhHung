@@ -83,19 +83,22 @@ const ProductDetailClient = ({ data }: { data: any }) => {
 
     const handleAddToCart = (item: any) => {
         if (item.options && item.options.length > 0) {
-            setSelectedItem(item);
+            setSelectedItem({ ...item, restaurant_id: restaurant._id || restaurant.id, restaurant });
             setIsModalOpen(true);
         } else {
+            console.log('DEBUG restaurant:', restaurant);
+            console.log('DEBUG restaurant._id:', restaurant._id);
             const cartItem = {
                 id: item._id,
                 name: item.title,
                 price: item.base_price,
                 quantity: 1,
                 image: getImageSrc(item.image),
+                restaurant_id: restaurant._id || restaurant.id,
                 selectedOptions: {}
             };
+            console.log('addToCart ProductDetailClient', cartItem);
             addToCart(cartItem);
-            message.success('Đã thêm vào giỏ hàng');
         }
     };
 

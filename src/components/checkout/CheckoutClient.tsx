@@ -36,15 +36,68 @@ const CheckoutClient = () => {
 
     const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    const onFinish = (values: CheckoutFormData) => {
-        if (values.paymentMethod === 'COD') {
-            // Handle COD payment
-            message.success('Đặt hàng thành công! Cảm ơn bạn đã mua hàng.');
-            clearCart();
-            router.push('/');
-        } else {
-            // Show QR code modal for banking payment
-            setIsModalVisible(true);
+    const onFinish = async (values: CheckoutFormData) => {
+        if (!session?.user?._id) {
+            message.error('Bạn cần đăng nhập để đặt hàng.');
+            return;
+        }
+        if (cartItems.length === 0) {
+            message.error('Giỏ hàng của bạn đang trống.');
+            return;
+        }
+
+        // Lấy restaurant_id từ item đầu tiên trong giỏ (giả sử tất cả cùng 1 nhà hàng)
+        const restaurant_id = cartItems[0].restaurant_id;
+        // Kiểm tra hợp lệ
+        if (!restaurant_id || typeof restaurant_id !== 'string' || restaurant_id.length !== 24) {
+            message.error('Không tìm thấy hoặc restaurant_id không hợp lệ! Vui lòng thử lại hoặc liên hệ admin.');
+            console.warn('restaurant_id không hợp lệ:', restaurant_id, cartItems);
+            return;
+        }
+
+        const orderPayload = {
+            user_id: session.user._id,
+            restaurant_id,
+            shipping_info: {
+                full_name: values.fullName,
+                phone: values.phone,
+                email: values.email,
+                address: values.address,
+                note: values.note,
+            },
+            payment_method: values.paymentMethod,
+            items: cartItems.map(item => ({
+                menu_item_id: item.id,
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                option: item.selectedOptions ? Object.values(item.selectedOptions).filter(Boolean).join(', ') : undefined,
+            })),
+            total_price: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+            shipping_fee: 15000,
+            total_amount: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) + 15000,
+            status: 'ordered',
+        };
+
+        try {
+            const res = await fetch('http://localhost:8080/api/v1/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.user.access_token}`
+                },
+                body: JSON.stringify(orderPayload),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                message.success('Đặt hàng thành công! Cảm ơn bạn đã mua hàng.');
+                clearCart();
+                router.push('/');
+            } else {
+                message.error(data.message || 'Đặt hàng thất bại!');
+            }
+        } catch (error) {
+            message.error('Đặt hàng thất bại!');
         }
     };
 

@@ -64,12 +64,20 @@ const ProductOptionsModal: React.FC<ProductOptionsModalProps> = ({
         console.log("Selected Item:", selectedItem); // Debug log
         console.log("Selected Options:", selectedOptions); // Debug log
 
+        let restaurantId = selectedItem.restaurant_id;
+        if (!restaurantId && selectedItem.restaurant && selectedItem.restaurant._id) {
+            restaurantId = selectedItem.restaurant._id;
+        }
+        if (!restaurantId) {
+            console.warn('Không tìm thấy restaurant_id khi thêm vào giỏ hàng!', selectedItem);
+        }
         const cartItem = {
             id: selectedItem._id,
             name: selectedItem.title,
             price: calculateTotalPrice(),
             quantity,
             image: getImageSrc(selectedItem.image),
+            restaurant_id: restaurantId,
             selectedOptions
         };
 
