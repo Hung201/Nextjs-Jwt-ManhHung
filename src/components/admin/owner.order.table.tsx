@@ -1,6 +1,7 @@
 'use client';
 
-import { Table, Tag } from 'antd';
+import { Table, Tag, Button, Popconfirm, message } from 'antd';
+import { handleDeleteOrderAction } from '@/utils/actions';
 
 interface IProps {
     orders: any[];
@@ -13,6 +14,21 @@ interface IProps {
 }
 
 const OwnerOrderTable = ({ orders, meta }: IProps) => {
+    // Hàm xóa order
+    const handleDeleteOrder = async (orderId: string) => {
+        try {
+            const res = await handleDeleteOrderAction(orderId);
+            if (res && !res.error) {
+                message.success('Xóa đơn hàng thành công!');
+                window.location.reload(); // Reload lại trang để cập nhật danh sách
+            } else {
+                message.error('Xóa đơn hàng thất bại!');
+            }
+        } catch (error) {
+            message.error('Có lỗi xảy ra khi xóa đơn hàng!');
+        }
+    };
+
     const columns = [
         { title: 'Order ID', dataIndex: '_id', key: '_id', width: 180 },
         { title: 'User', dataIndex: 'user_id', key: 'user_id', render: (user: any) => user?.name || user?.email || '-' },
@@ -44,6 +60,20 @@ const OwnerOrderTable = ({ orders, meta }: IProps) => {
         { title: 'Shipping Fee', dataIndex: 'shipping_fee', key: 'shipping_fee', render: (v: number) => v?.toLocaleString() + 'đ' },
         { title: 'Total Amount', dataIndex: 'total_amount', key: 'total_amount', render: (v: number) => <b style={{ color: '#ee4d2d' }}>{v?.toLocaleString()}đ</b> },
         { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'ordered' ? 'blue' : 'green'}>{v}</Tag> },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_: any, record: any) => (
+                <Popconfirm
+                    title="Bạn có chắc muốn xóa đơn hàng này?"
+                    onConfirm={() => handleDeleteOrder(record._id)}
+                    okText="Xóa"
+                    cancelText="Hủy"
+                >
+                    <Button danger>Xóa</Button>
+                </Popconfirm>
+            ),
+        },
     ];
 
     return (

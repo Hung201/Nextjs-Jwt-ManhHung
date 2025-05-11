@@ -160,7 +160,7 @@ const ProductOptionsModal: React.FC<ProductOptionsModalProps> = ({
             <div className="mt-6">
                 <Button
                     type="primary"
-                    className="w-full h-11 text-white bg-[#0d6efd] hover:bg-[#0b5ed7] flex items-center justify-center"
+                    className="w-full h-11 text-white !bg-[#ee4d2d] !hover:bg-[#d73211] flex items-center justify-center !border-none"
                     onClick={handleSubmit}
                 >
                     Thêm vào giỏ hàng - {(calculateTotalPrice() * quantity).toLocaleString()}đ

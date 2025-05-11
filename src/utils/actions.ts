@@ -267,3 +267,16 @@ export const getAllUsers = async () => {
     });
     return res;
 };
+
+export const handleDeleteOrderAction = async (id: string) => {
+    const session = await auth();
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/orders/${id}`,
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+        },
+    });
+    // revalidateTag("list-orders"); // Nếu bạn dùng tag cho orders
+    return res;
+};

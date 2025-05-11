@@ -6,7 +6,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 const { Title, Text } = Typography;
-type PaymentMethod = 'COD' | 'BANKING';
+type PaymentMethod = 'COD' | 'BANKING' | 'MOMO';
 interface CheckoutFormData {
     fullName: string;
     phone: string;
@@ -18,21 +18,21 @@ interface CheckoutFormData {
 
 const CheckoutClient = () => {
     const { cartItems, clearCart } = useCart();
-    const [form] = Form.useForm();
+    const [checkoutForm] = Form.useForm();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const router = useRouter();
     const { data: session } = useSession();
 
     useEffect(() => {
         if (session?.user) {
-            form.setFieldsValue({
+            checkoutForm.setFieldsValue({
                 fullName: session.user.name || '',
                 phone: session.user.phone || '',
                 email: session.user.email || '',
                 address: session.user.address || '',
             });
         }
-    }, [session, form]);
+    }, [session, checkoutForm]);
 
     const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -55,6 +55,62 @@ const CheckoutClient = () => {
             return;
         }
 
+        // Xử lý thanh toán MoMo
+        if (values.paymentMethod === 'MOMO') {
+            try {
+                const orderPayload = {
+                    user_id: session.user._id,
+                    restaurant_id,
+                    shipping_info: {
+                        full_name: values.fullName,
+                        phone: values.phone,
+                        email: values.email,
+                        address: values.address,
+                        note: values.note,
+                    },
+                    payment_method: 'momo',
+                    items: cartItems.map(item => ({
+                        menu_item_id: item.id,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                        option: item.selectedOptions ? Object.values(item.selectedOptions).filter(Boolean).join(', ') : undefined,
+                    })),
+                    total_price: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+                    shipping_fee: 15000,
+                    total_amount: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) + 15000,
+                    status: 'ordered',
+                };
+                // Lưu cả access_token cùng orderPayload
+                localStorage.setItem('pending_order_payload', JSON.stringify({
+                    order: orderPayload,
+                    access_token: session.user.access_token
+                }));
+                const momoRes = await fetch('http://localhost:8080/api/v1/payment/momo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.user.access_token}`
+                    },
+                    body: JSON.stringify({
+                        amount: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) + 15000,
+                        orderInfo: 'Thanh toán đơn hàng'
+                    }),
+                });
+                const momoData = await momoRes.json();
+                if (momoData.data && momoData.data.payUrl) {
+                    window.location.href = momoData.data.payUrl;
+                    return;
+                } else {
+                    message.error('Không thể tạo thanh toán MoMo');
+                    return;
+                }
+            } catch (error) {
+                message.error('Thanh toán MoMo thất bại!');
+                return;
+            }
+        }
+
         const orderPayload = {
             user_id: session.user._id,
             restaurant_id,
@@ -65,7 +121,7 @@ const CheckoutClient = () => {
                 address: values.address,
                 note: values.note,
             },
-            payment_method: values.paymentMethod,
+            payment_method: values.paymentMethod.toLowerCase(),
             items: cartItems.map(item => ({
                 menu_item_id: item.id,
                 name: item.name,
@@ -91,6 +147,17 @@ const CheckoutClient = () => {
             const data = await res.json();
             if (res.ok) {
                 message.success('Đặt hàng thành công! Cảm ơn bạn đã mua hàng.');
+                // Nếu user là OWNER, thêm order cho OWNER
+                if (session?.user?.role === 'OWNER') {
+                    await fetch('http://localhost:8080/api/v1/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.user.access_token}`
+                        },
+                        body: JSON.stringify(orderPayload),
+                    });
+                }
                 clearCart();
                 router.push('/');
             } else {
@@ -124,7 +191,7 @@ const CheckoutClient = () => {
                     <Card className="mb-6">
                         <Title level={4} className="mb-6">Thông tin giao hàng</Title>
                         <Form
-                            form={form}
+                            form={checkoutForm}
                             layout="vertical"
                             onFinish={onFinish}
                             requiredMark={true}
@@ -145,7 +212,6 @@ const CheckoutClient = () => {
                                 label="Số điện thoại"
                                 rules={[
                                     { required: true, message: 'Vui lòng nhập số điện thoại' },
-                                    { pattern: /^[0-9]{10}$/, message: 'Số điện thoại phải có 10 chữ số' }
                                 ]}
                             >
                                 <Input placeholder="Nhập số điện thoại" />
@@ -204,6 +270,12 @@ const CheckoutClient = () => {
                                             <div className="flex flex-col">
                                                 <Text strong>Chuyển khoản ngân hàng</Text>
                                                 <Text className="text-gray-500">Chuyển khoản qua tài khoản ngân hàng</Text>
+                                            </div>
+                                        </Radio>
+                                        <Radio value="MOMO" className="w-full">
+                                            <div className="flex flex-col">
+                                                <Text strong>Thanh toán MoMo</Text>
+                                                <Text className="text-gray-500">Thanh toán qua ví MoMo</Text>
                                             </div>
                                         </Radio>
                                     </div>
@@ -267,7 +339,7 @@ const CheckoutClient = () => {
                             type="primary"
                             size="large"
                             className="w-full !bg-[#ee4d2d] !border-[#ee4d2d] hover:!bg-[#d73211] hover:!border-[#d73211]"
-                            onClick={() => form.submit()}
+                            onClick={() => checkoutForm.submit()}
                         >
                             Đặt hàng
                         </Button>
@@ -305,7 +377,7 @@ const CheckoutClient = () => {
                             Số tiền: {(totalAmount + 15000).toLocaleString()}đ
                         </Text>
                         <Text className="text-gray-500">
-                            Vui lòng chuyển khoản đúng số tiền và ghi nội dung: "ĐH {form.getFieldValue('phone')}"
+                            Vui lòng chuyển khoản đúng số tiền và ghi nội dung: "ĐH {checkoutForm.getFieldValue('phone')}"
                         </Text>
                     </div>
                 </div>

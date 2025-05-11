@@ -86,7 +86,7 @@ const CartTable: React.FC<CartTableProps> = ({
 
     // Chỉ lấy thông tin cần thiết và loại bỏ ID khỏi hiển thị
     const dataWithKeys = cartItems.map((item, index) => {
-        const { id, name, price, quantity, image, selectedOptions } = item;
+        const { id, name, price, quantity, image, selectedOptions, restaurant_id } = item;
         return {
             id,
             name,
@@ -94,6 +94,7 @@ const CartTable: React.FC<CartTableProps> = ({
             quantity,
             image,
             selectedOptions,
+            restaurant_id,
             uniqueKey: `${id}-${index}`
         };
     });

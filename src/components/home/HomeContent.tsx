@@ -3,12 +3,14 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Row, Col, Typography, message, SelectProps } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import HomeCard from './HomeCard';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { startProgress, doneProgress, navigateWithProgress } from '@/utils/nprogress';
 import { Restaurant, PaginationState, RestaurantResponse } from '@/types/restaurant';
 import dynamic from 'next/dynamic';
 import debounce from 'lodash/debounce';
 import { getRestaurantsWithPagination } from '@/utils/actions';
+import { useCart } from '@/contexts/CartContext';
+import { useSession } from 'next-auth/react';
 
 const { Title } = Typography;
 
@@ -24,6 +26,7 @@ type SortByType = 'popular' | 'rating' | 'a-z' | 'z-a';
 
 const HomeContent = () => {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [searchText, setSearchText] = useState('');
     const [sortBy, setSortBy] = useState<SortByType>('popular');
     const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -34,10 +37,54 @@ const HomeContent = () => {
         pages: 1
     });
     const [loading, setLoading] = useState(false);
+    const { clearCart, cartItems } = useCart();
+    const { data: session } = useSession();
 
     useEffect(() => {
         fetchRestaurants();
     }, [pagination.current, pagination.pageSize]);
+
+    useEffect(() => {
+        const resultCode = searchParams.get('resultCode');
+        const messageParam = searchParams.get('message');
+        if (
+            resultCode === '0' &&
+            messageParam &&
+            decodeURIComponent(messageParam).toLowerCase().includes('thành công') &&
+            !sessionStorage.getItem('momo_payment_success')
+        ) {
+            const url = new URL(window.location.href);
+            url.search = '';
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+
+            // Lấy order và access_token từ localStorage
+            const orderPayloadStr = localStorage.getItem('pending_order_payload');
+            if (orderPayloadStr) {
+                const { order, access_token } = JSON.parse(orderPayloadStr);
+                fetch('http://localhost:8080/api/v1/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${access_token}`
+                    },
+                    body: JSON.stringify(order),
+                }).then(res => res.json()).then(data => {
+                    console.log('Order API response:', data);
+                });
+                localStorage.removeItem('pending_order_payload');
+            } else {
+                console.log('Không tìm thấy orderPayload trong localStorage');
+            }
+
+            sessionStorage.setItem('momo_payment_success', '1');
+            message.success('Thanh toán thành công!');
+            clearCart();
+
+            setTimeout(() => {
+                sessionStorage.removeItem('momo_payment_success');
+            }, 1000);
+        }
+    }, [searchParams]);
 
     const fetchRestaurants = async () => {
         try {
