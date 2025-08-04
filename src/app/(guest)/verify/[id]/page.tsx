@@ -1,4 +1,4 @@
-import Verify from "@/components/auth/verify"
+import Verify from "@/components/features/auth/verify"
 
 const VerifyPage = ({ params }: { params: { id: string } }) => {
     const { id } = params

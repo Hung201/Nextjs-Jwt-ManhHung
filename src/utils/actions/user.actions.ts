@@ -1,41 +1,7 @@
 'use server'
-
-import { auth, signIn } from "@/auth";
+import { auth } from "@/auth";
+import { sendRequest } from "../api";
 import { revalidateTag } from 'next/cache'
-import { sendRequest } from "./api";
-
-
-export async function authenticate(username: string, password: string) {
-    try {
-        const r = await signIn("credentials", {
-            username: username,
-            password: password,
-            // callbackUrl: "/",
-            redirect: false,
-        })
-        console.log(">>> check r: ", r)
-        return r;
-    } catch (error) {
-        if ((error as any).name === "InvalidEmailPasswordError") {
-            return {
-                error: (error as any).type,
-                code: 1
-            }
-
-        } else if ((error as any).name === "InactiveAccountError") {
-            return {
-                error: (error as any).type,
-                code: 2
-            }
-        } else {
-            return {
-                error: "Internal server error",
-                code: 0
-            }
-        }
-
-    }
-}
 
 export const handleCreateUserAction = async (data: any) => {
     const session = await auth();
@@ -74,7 +40,25 @@ export const handleDeleteUserAction = async (id: any) => {
             Authorization: `Bearer ${session?.user?.access_token}`,
         },
     })
-
     revalidateTag("list-users")
+    return res;
+}
+
+export const getUsersAction = async (current: number, pageSize: number) => {
+    const session = await auth();
+    const res = await sendRequest<IBackendRes<any>>({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users`,
+        method: "GET",
+        queryParams: {
+            current,
+            pageSize
+        },
+        headers: {
+            Authorization: `Bearer ${session?.user?.access_token}`,
+        },
+        nextOption: {
+            next: { tags: ['list-users'] }
+        }
+    });
     return res;
 }
