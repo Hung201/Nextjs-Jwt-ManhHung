@@ -6,7 +6,10 @@ import {
     MailOutlined,
     SettingOutlined,
     TeamOutlined,
-
+    DatabaseOutlined,
+    FileTextOutlined,
+    PlayCircleOutlined,
+    TranslationOutlined,
 } from '@ant-design/icons';
 import React, { useContext } from 'react';
 import { AdminContext } from "@/library/admin.context";
@@ -36,59 +39,43 @@ const AdminSidebar = () => {
                     icon: <TeamOutlined />,
                 },
                 {
-                    key: 'sub1',
-                    label: 'Navigation One',
-                    icon: <MailOutlined />,
-                    children: [
-                        {
-                            key: 'g1',
-                            label: 'Item 1',
-                            type: 'group',
-                            children: [
-                                { key: '1', label: 'Option 1' },
-                                { key: '2', label: 'Option 2' },
-                            ],
-                        },
-                        {
-                            key: 'g2',
-                            label: 'Item 2',
-                            type: 'group',
-                            children: [
-                                { key: '3', label: 'Option 3' },
-                                { key: '4', label: 'Option 4' },
-                            ],
-                        },
-                    ],
-                },
-                {
-                    key: 'sub2',
-                    label: 'Navigation Two',
-                    icon: <AppstoreOutlined />,
-                    children: [
-                        { key: '5', label: 'Option 5' },
-                        { key: '6', label: 'Option 6' },
-                        {
-                            key: 'sub3',
-                            label: 'Submenu',
-                            children: [
-                                { key: '7', label: 'Option 7' },
-                                { key: '8', label: 'Option 8' },
-                            ],
-                        },
-                    ],
-                },
-                {
                     type: 'divider',
                 },
                 {
-                    key: 'sub4',
-                    label: 'Navigation Three',
-                    icon: <SettingOutlined />,
+                    key: 'crawl-system',
+                    label: 'Crawl System',
+                    icon: <DatabaseOutlined />,
                     children: [
-                        { key: '9', label: 'Option 9' },
-                        { key: '10', label: 'Option 10' },
-                        { key: '11', label: 'Option 11' },
-                        { key: '12', label: 'Option 12' },
+                        {
+                            key: 'crawl-dashboard',
+                            label: <Link href={"/dashboard"}>Crawl Dashboard</Link>,
+                            icon: <AppstoreOutlined />,
+                        },
+                        {
+                            key: 'crawl-sources',
+                            label: <Link href={"/dashboard/sources"}>Manage Sources</Link>,
+                            icon: <DatabaseOutlined />,
+                        },
+                        {
+                            key: 'crawl-data',
+                            label: <Link href={"/dashboard/crawl-data"}>Crawl Data</Link>,
+                            icon: <FileTextOutlined />,
+                        },
+                        {
+                            key: 'crawl-actors',
+                            label: <Link href={"/dashboard/actors"}>Manage Actors</Link>,
+                            icon: <PlayCircleOutlined />,
+                        },
+                        {
+                            key: 'translation',
+                            label: <Link href={"/dashboard/translation"}>Translation</Link>,
+                            icon: <TranslationOutlined />,
+                        },
+                        {
+                            key: 'logs',
+                            label: <Link href={"/dashboard/logs"}>System Logs</Link>,
+                            icon: <SettingOutlined />,
+                        },
                     ],
                 },
             ],

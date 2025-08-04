@@ -1,0 +1,1 @@
+export { default as CrawlDataView } from './crawl.data.view'; 

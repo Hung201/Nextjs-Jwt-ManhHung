@@ -1,10 +1,10 @@
-import AdminCard from "@/components/features/admin/dashboard";
+import { CrawlDashboard } from "@/components/features/crawl/dashboard";
 
 const DashboardPage = () => {
 
     return (
         <div>
-            <AdminCard />
+            <CrawlDashboard />
         </div>
     )
 }
